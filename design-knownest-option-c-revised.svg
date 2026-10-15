@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="889" viewBox="0 0 1440 1024">
+  <defs>
+    <style>.ui{font-family:Inter,Segoe UI,Microsoft YaHei,sans-serif}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}</style>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7faf8"/><stop offset="1" stop-color="#e9f2ef"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0b3434" flood-opacity=".10"/></filter>
+  </defs>
+  <rect width="1440" height="1024" fill="url(#bg)"/>
+  <rect width="236" height="1024" fill="#0b2d31"/>
+  <circle cx="42" cy="43" r="22" fill="#78d1bf"/><text x="42" y="51" text-anchor="middle" class="ui" font-size="19" font-weight="800" fill="#0b2d31">K</text><text x="76" y="49" class="ui" font-size="16" font-weight="800" letter-spacing="3" fill="#f2faf6">KNOWNEST</text>
+  <line x1="25" y1="82" x2="211" y2="82" stroke="#24474a"/><text x="25" y="119" class="ui" font-size="11" fill="#8da8a3">工作空间</text>
+  <rect x="20" y="136" width="196" height="44" rx="9" fill="#174147" stroke="#315f5d"/><text x="36" y="164" class="ui" font-size="13" fill="#f4f8f5">Personal workspace</text><text x="190" y="164" class="ui" font-size="17" fill="#7ed4c3">⌄</text>
+  <text x="25" y="212" class="ui" font-size="12" fill="#78d1bf">＋ 新建工作空间</text><text x="25" y="265" class="ui" font-size="11" fill="#8da8a3">知识库</text>
+  <rect x="20" y="281" width="196" height="44" rx="9" fill="#174147" stroke="#315f5d"/><text x="36" y="309" class="ui" font-size="13" fill="#f4f8f5">test</text><text x="190" y="309" class="ui" font-size="17" fill="#7ed4c3">⌄</text>
+  <text x="25" y="358" class="ui" font-size="12" fill="#78d1bf">＋ 新建知识库</text><text x="25" y="410" class="ui" font-size="11" fill="#8da8a3">最近打开</text>
+  <rect x="20" y="426" width="196" height="42" rx="9" fill="#78d1bf"/><text x="37" y="453" class="ui" font-size="12" font-weight="700" fill="#0b2d31">⌁ Java Date.docx</text><text x="25" y="503" class="ui" font-size="13" fill="#d5e7e1">＋ 上传文档</text>
+  <line x1="25" y1="909" x2="211" y2="909" stroke="#24474a"/><text x="25" y="946" class="ui" font-size="12" fill="#9ab3ad">设置</text><text x="25" y="975" class="ui" font-size="12" fill="#9ab3ad">帮助与快捷键</text>
+
+  <rect x="236" width="1204" height="70" fill="#fbfdfb"/><line x1="236" y1="70" x2="1440" y2="70" stroke="#dbe8e2"/><text x="270" y="42" class="ui" font-size="13" fill="#5d7774">知识库 / test</text><circle cx="1242" cy="34" r="5" fill="#4fc3aa"/><text x="1257" y="39" class="ui" font-size="12" fill="#47716a">系统运行中</text><text x="1367" y="39" class="ui" font-size="12" fill="#47716a">退出</text>
+  <rect x="236" y="70" width="1204" height="954" fill="#f5faf7"/>
+
+  <!-- Left column: fixed readable width; all controls stay inside this column. -->
+  <text x="280" y="124" class="mono" font-size="11" letter-spacing="2" fill="#458c83">RECENT THREAD</text><text x="280" y="164" class="ui" font-size="28" font-weight="750" fill="#11393e">Java Date.docx</text><text x="280" y="191" class="ui" font-size="13" fill="#6c8580">知识库问答 · 3 个引用片段 · 可继续追问</text>
+  <rect x="280" y="224" width="680" height="146" rx="15" fill="#fff" stroke="#d6e6df" filter="url(#shadow)"/>
+  <text x="307" y="254" class="ui" font-size="12" font-weight="700" fill="#627d77">提问方式</text><rect x="307" y="270" width="245" height="30" rx="15" fill="#edf5f2"/><rect x="310" y="273" width="116" height="24" rx="12" fill="#0f756e"/><text x="368" y="289" text-anchor="middle" class="ui" font-size="10" font-weight="700" fill="#fff">普通 RAG</text><text x="489" y="289" text-anchor="middle" class="ui" font-size="10" font-weight="700" fill="#58746e">智能回答</text>
+  <text x="307" y="335" class="ui" font-size="15" fill="#294b4b">这份文档主要讲了什么？</text><rect x="892" y="311" width="42" height="42" rx="21" fill="#b9e1d7"/><text x="913" y="338" text-anchor="middle" class="ui" font-size="19" fill="#0d655e">↑</text>
+  <text x="280" y="423" class="mono" font-size="11" letter-spacing="2" fill="#458c83">CONVERSATION</text><line x1="280" y1="444" x2="960" y2="444" stroke="#dbe8e2"/>
+  <circle cx="299" cy="483" r="8" fill="#0f756e"/><text x="323" y="489" class="ui" font-size="12" font-weight="700" fill="#6a837d">KNOWNEST · 刚刚</text><text x="323" y="527" class="ui" font-size="20" font-weight="750" fill="#173c42">Java Date.docx 主要介绍了什么？</text><text x="323" y="566" class="ui" font-size="15" fill="#496562">这份资料围绕 Java 的日期与时间 API 展开，涵盖日期对象、格式化方式，</text><text x="323" y="594" class="ui" font-size="15" fill="#496562">以及常见的使用场景。回答内容均来自当前知识库的可追溯片段。</text><text x="323" y="640" class="ui" font-size="13" font-weight="700" fill="#0f756e">查看引用来源 ↗</text>
+  <line x1="280" y1="686" x2="960" y2="686" stroke="#dbe8e2"/><text x="280" y="722" class="mono" font-size="11" letter-spacing="2" fill="#458c83">FOLLOW UP</text><text x="280" y="755" class="ui" font-size="14" fill="#68817b">继续追问，答案会沿用当前上下文。</text>
+  <rect x="280" y="780" width="680" height="58" rx="12" fill="#fff" stroke="#d6e6df"/><text x="306" y="816" class="ui" font-size="14" fill="#9aadA8">例如：LocalDate 和 Date 有什么区别？</text><circle cx="921" cy="809" r="18" fill="#d9eee8"/><text x="921" y="815" text-anchor="middle" class="ui" font-size="16" fill="#0f756e">↑</text>
+
+  <!-- Right column: independent evidence rail; it never shares bounds with the left controls. -->
+  <rect x="1000" y="112" width="397" height="738" rx="16" fill="#edf6f2" stroke="#d0e4dc"/><text x="1032" y="154" class="mono" font-size="11" letter-spacing="2" fill="#458c83">EVIDENCE</text><text x="1032" y="189" class="ui" font-size="19" font-weight="750" fill="#173c42">引用上下文</text><text x="1032" y="217" class="ui" font-size="12" fill="#78908c">固定上下文栏，不打断阅读</text><line x1="1032" y1="241" x2="1365" y2="241" stroke="#d0e4dc"/>
+  <text x="1032" y="279" class="mono" font-size="10" fill="#0f756e">01 / JAVA DATE.DOCX</text><text x="1032" y="314" class="ui" font-size="13" fill="#2e5050">“LocalDate 表示不带时间的日期，</text><text x="1032" y="339" class="ui" font-size="13" fill="#2e5050">适合生日、账期等场景。”</text><rect x="1032" y="366" width="72" height="22" rx="11" fill="#d9efe8"/><text x="1068" y="381" text-anchor="middle" class="ui" font-size="10" fill="#0f756e">相关度 92%</text>
+  <line x1="1032" y1="431" x2="1365" y2="431" stroke="#d0e4dc"/><text x="1032" y="470" class="mono" font-size="10" fill="#0f756e">02 / JAVA DATE.DOCX</text><text x="1032" y="505" class="ui" font-size="13" fill="#2e5050">“DateTimeFormatter 用于定义</text><text x="1032" y="530" class="ui" font-size="13" fill="#2e5050">日期与文本之间的格式转换。”</text><text x="1032" y="563" class="ui" font-size="10" fill="#849b95">相关度 86%</text><text x="1032" y="639" class="ui" font-size="13" font-weight="700" fill="#0f756e">打开完整文档 ↗</text><text x="1032" y="809" class="mono" font-size="10" fill="#8ca7a0">3 个片段 · 来源可追溯</text><text x="1342" y="970" class="mono" font-size="10" letter-spacing="2" fill="#9ab0aa">KNOWNEST</text>
+</svg>

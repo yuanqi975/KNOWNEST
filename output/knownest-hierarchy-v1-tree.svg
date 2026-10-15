@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+<style>.ui{font-family:"Microsoft YaHei","Segoe UI",sans-serif;fill:#3f5b55}.muted{fill:#82918a}.tiny{font-size:12px}.label{font-size:14px;font-weight:600}.line{stroke:#dddcd2;stroke-width:1}.tree{stroke:#c9d2c8;stroke-width:1.2;fill:none}.ico{fill:none;stroke:#648278;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}</style>
+<rect width="1440" height="900" fill="#f5f2e9"/><rect width="334" height="900" fill="#faf8f1"/><line x1="334" y1="0" x2="334" y2="900" class="line"/>
+<rect x="0" y="0" width="334" height="62" fill="#edf0e7"/><rect x="26" y="16" width="30" height="30" rx="7" fill="#456d5e"/><text x="41" y="38" text-anchor="middle" font-size="18" fill="#fff">K</text><text x="72" y="37" class="ui" font-size="15" font-weight="700" letter-spacing="2">KNOWNEST</text>
+<text x="26" y="96" class="ui muted tiny">工作空间</text><rect x="26" y="112" width="282" height="44" rx="7" fill="#fffdf9" stroke="#d6d4c9"/><text x="45" y="140" class="ui" font-size="15">Personal workspace</text><path d="M280 130l7 7 7-7" class="ico"/>
+<text x="26" y="191" class="ui" font-size="14" fill="#4f705f">＋ 新建工作空间</text><line x1="26" y1="219" x2="308" y2="219" class="line"/>
+<text x="26" y="251" class="ui muted tiny">知识库</text><text x="286" y="251" text-anchor="end" class="ui muted tiny">2 个</text>
+<path d="M39 282v292M39 308h15M39 336h15M39 364h15M39 392h15M39 420h15M39 448h15M39 476h15M39 504h15M39 532h15" class="tree"/>
+<text x="49" y="286" class="ui" font-size="14">▾　产品文档</text><text x="286" y="286" text-anchor="end" class="ui muted tiny">当前</text>
+<rect x="55" y="302" width="242" height="39" rx="5" fill="#dfeade"/><text x="73" y="327" class="ui label">▾　tets</text><circle cx="276" cy="321" r="4" fill="#4f705f"/>
+<text x="83" y="367" class="ui" font-size="13">▧　文档</text><text x="276" y="367" text-anchor="end" class="ui muted tiny">6</text>
+<text x="83" y="395" class="ui" font-size="13">◌　记忆</text><text x="276" y="395" text-anchor="end" class="ui muted tiny">12</text>
+<rect x="72" y="406" width="225" height="34" rx="4" fill="#e8efe6"/><text x="83" y="428" class="ui label">◉　对话记录</text><text x="276" y="428" text-anchor="end" class="ui muted tiny">4</text>
+<text x="101" y="463" class="ui" font-size="12">智能回答的适用场景</text><text x="101" y="482" class="ui muted" font-size="11">刚刚 · 智能回答</text>
+<text x="101" y="514" class="ui" font-size="12">如何配置知识库检索</text><text x="101" y="533" class="ui muted" font-size="11">今天 · 普通 RAG</text>
+<text x="49" y="574" class="ui" font-size="14">▸　研发知识库</text><text x="286" y="574" text-anchor="end" class="ui muted tiny">0</text>
+<line x1="26" y1="616" x2="308" y2="616" class="line"/><text x="26" y="653" class="ui" font-size="14">＋ 新建知识库</text>
+<rect x="26" y="816" width="282" height="42" rx="5" fill="#edf0e7"/><text x="45" y="843" class="ui" font-size="14">▦　MCP 管理</text><text x="286" y="843" text-anchor="end" class="ui muted tiny">全局</text>
+<rect x="334" width="1106" height="62" fill="#fffdf9"/><line x1="334" y1="62" x2="1440" y2="62" class="line"/><text x="370" y="38" class="ui muted">Personal workspace / tets / 对话记录</text><text x="1252" y="38" class="ui muted tiny">● 系统运行中</text><text x="1360" y="38" class="ui muted tiny">退出登录</text>
+<rect x="334" y="62" width="1106" height="838" fill="#f8f6f0"/><text x="394" y="137" class="ui" font-size="27" font-weight="700">对话记录</text><text x="394" y="170" class="ui muted" font-size="14">tets 知识库 · 4 个独立会话</text><rect x="1147" y="111" width="174" height="42" rx="6" fill="#4f705f"/><text x="1234" y="137" text-anchor="middle" font-size="14" fill="#fff">＋ 新建对话</text>
+<line x1="394" y1="210" x2="1364" y2="210" class="line"/><text x="394" y="244" class="ui muted tiny">名称</text><text x="1036" y="244" class="ui muted tiny">模式</text><text x="1225" y="244" class="ui muted tiny">最近更新</text>
+<rect x="394" y="263" width="970" height="68" rx="6" fill="#e6eee5"/><circle cx="423" cy="297" r="5" fill="#4f705f"/><text x="448" y="292" class="ui label">智能回答的适用场景</text><text x="448" y="313" class="ui muted tiny">8 条消息</text><text x="1036" y="301" class="ui" font-size="12">智能回答</text><text x="1225" y="301" class="ui muted tiny">刚刚</text>
+<rect x="394" y="345" width="970" height="68" rx="6" fill="#fffdf9" stroke="#e3e1d7"/><text x="448" y="375" class="ui label">如何配置知识库检索</text><text x="448" y="396" class="ui muted tiny">4 条消息</text><text x="1036" y="384" class="ui" font-size="12">普通 RAG</text><text x="1225" y="384" class="ui muted tiny">今天 10:32</text>
+<rect x="394" y="427" width="970" height="68" rx="6" fill="#fffdf9" stroke="#e3e1d7"/><text x="448" y="457" class="ui label">项目文档中的权限说明</text><text x="448" y="478" class="ui muted tiny">11 条消息</text><text x="1036" y="466" class="ui" font-size="12">Agent</text><text x="1225" y="466" class="ui muted tiny">昨天</text>
+<rect x="394" y="509" width="970" height="68" rx="6" fill="#fffdf9" stroke="#e3e1d7"/><text x="448" y="539" class="ui label">部署环境变量检查清单</text><text x="448" y="560" class="ui muted tiny">2 条消息</text><text x="1036" y="548" class="ui" font-size="12">普通 RAG</text><text x="1225" y="548" class="ui muted tiny">10 月 12 日</text>
+</svg>

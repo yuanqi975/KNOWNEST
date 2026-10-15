@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: WeKnora Documentation
+    url: https://github.com/Tencent/WeKnora/blob/main/docs/QA.md
+    about: Check WeKnora FAQ
+  - name: Discussions
+    url: https://github.com/Tencent/WeKnora/discussions
+    about: Ask questions or share ideas in Discussions

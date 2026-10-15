@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-labelledby="title desc">
+  <title id="title">KNOWNEST 中文登录界面概念稿</title>
+  <desc id="desc">参考知识库工作台风格的 KNOWNEST 中文登录页：左侧品牌，中间登录表单，右侧本地运行状态。</desc>
+  <defs>
+    <filter id="paper" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="7" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="fade"><feFuncA type="table" tableValues="0 0.045"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="fade" mode="multiply"/>
+    </filter>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#443f34" flood-opacity="0.10"/></filter>
+    <style>
+      .serif{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong",SimSun,serif}
+      .sans{font-family:Inter,"Microsoft YaHei","PingFang SC",sans-serif}
+      .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    </style>
+  </defs>
+
+  <rect width="1536" height="1024" fill="#f5f2e9" filter="url(#paper)"/>
+  <rect x="12" y="12" width="1512" height="1000" rx="10" fill="none" stroke="#d7d3c8"/>
+  <line x1="276" y1="12" x2="276" y2="1012" stroke="#d5d0c4"/>
+  <line x1="1147" y1="12" x2="1147" y2="1012" stroke="#d5d0c4"/>
+
+  <!-- Brand rail -->
+  <g transform="translate(36 34)">
+    <path d="M2 4h11c7 0 12 5 12 12v18H14c-5 0-9-3-12-7z" fill="none" stroke="#435549" stroke-width="2.2"/>
+    <path d="M25 4H14c-7 0-12 5-12 12v18h11c5 0 9-3 12-7z" fill="none" stroke="#435549" stroke-width="2.2"/>
+  </g>
+  <text x="76" y="59" class="serif" font-size="21" font-weight="700" fill="#252821">KNOWNEST</text>
+  <text x="36" y="104" class="mono" font-size="10" letter-spacing="1.3" fill="#778173">PRIVATE KNOWLEDGE RUNTIME</text>
+  <line x1="36" y1="138" x2="244" y2="138" stroke="#d9d4c8"/>
+
+  <rect x="22" y="166" width="232" height="52" rx="8" fill="#dfe6db" stroke="#bcc8bc"/>
+  <rect x="22" y="166" width="4" height="52" rx="2" fill="#6e8677"/>
+  <rect x="41" y="181" width="22" height="22" rx="5" fill="#6e8677"/>
+  <text x="52" y="197" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#f8f5ec">K</text>
+  <text x="80" y="198" class="serif" font-size="17" fill="#27352c">&#30693;&#35782;&#24211;</text>
+  <text x="36" y="264" class="serif" font-size="17" fill="#30352e">&#25991;&#26723;</text>
+  <path d="M38 248h18v20H38zM42 244h10" fill="none" stroke="#30352e" stroke-width="1.8"/>
+  <text x="36" y="317" class="serif" font-size="17" fill="#30352e">&#23545;&#35805;&#35760;&#24405;</text>
+  <path d="M38 297h20v14l-5 5H38z" fill="none" stroke="#30352e" stroke-width="1.8"/>
+  <text x="36" y="370" class="serif" font-size="17" fill="#30352e">&#35774;&#32622;</text>
+  <circle cx="47" cy="359" r="9" fill="none" stroke="#30352e" stroke-width="1.8"/><circle cx="47" cy="359" r="3" fill="none" stroke="#30352e" stroke-width="1.8"/>
+  <line x1="36" y1="417" x2="244" y2="417" stroke="#d9d4c8"/>
+  <text x="36" y="454" class="serif" font-size="16" fill="#334238">&#30331;&#24405;&#21518;&#21487;&#29992;</text>
+  <text x="36" y="489" class="sans" font-size="13" fill="#747b70">&#19978;&#20256;&#25991;&#26723;&#12289;&#26816;&#32034;&#20869;&#23481;</text>
+  <text x="36" y="516" class="sans" font-size="13" fill="#747b70">&#26597;&#30475;&#24341;&#29992;&#19982;&#35777;&#25454;</text>
+  <text x="36" y="543" class="sans" font-size="13" fill="#747b70">&#20351;&#29992; RAG &#19982; Agent</text>
+  <line x1="36" y1="892" x2="244" y2="892" stroke="#d9d4c8"/>
+  <text x="36" y="929" class="mono" font-size="10" letter-spacing="1.2" fill="#7d877b">LOCAL-FIRST / EVIDENCE-FIRST</text>
+  <text x="36" y="962" class="sans" font-size="12" fill="#8b9187">&#20320;&#30340;&#36164;&#26009;&#30041;&#22312;&#33258;&#24049;&#30340;&#36816;&#34892;&#29615;&#22659;&#20013;&#12290;</text>
+
+  <!-- Main login area -->
+  <g transform="translate(316 32)">
+    <path d="M3 4h18l10 10v28H3z" fill="none" stroke="#60766b" stroke-width="2"/>
+    <path d="M21 4v11h10M9 25h16M9 33h16" fill="none" stroke="#60766b" stroke-width="2"/>
+  </g>
+  <text x="364" y="54" class="serif" font-size="23" font-weight="700" fill="#252821">&#36827;&#20837;&#20320;&#30340;&#30693;&#35782;&#31354;&#38388;</text>
+  <text x="364" y="84" class="sans" font-size="14" fill="#6d756a">&#30331;&#24405;&#21518;&#32487;&#32493;&#31649;&#29702;&#25991;&#26723;&#65292;&#24182;&#20174;&#21487;&#36861;&#28335;&#35777;&#25454;&#20013;&#33719;&#24471;&#31572;&#26696;</text>
+  <line x1="316" y1="112" x2="1110" y2="112" stroke="#d6d1c6"/>
+
+  <rect x="316" y="142" width="794" height="700" rx="13" fill="#f8f6ef" stroke="#d7d2c6" filter="url(#shadow)"/>
+  <text x="365" y="204" class="mono" font-size="10" letter-spacing="1.8" fill="#7a887a">KNOWNEST / AUTHENTICATION</text>
+  <text x="365" y="263" class="serif" font-size="38" font-weight="700" fill="#242720">&#27426;&#36814;&#22238;&#26469;</text>
+  <text x="365" y="302" class="sans" font-size="15" fill="#737b70">&#20351;&#29992;&#20320;&#30340;&#36134;&#21495;&#32487;&#32493;&#35775;&#38382;&#26412;&#22320;&#30693;&#35782;&#24211;&#12290;</text>
+  <text x="365" y="367" class="serif" font-size="16" fill="#343b33">&#29992;&#25143;&#21517;</text>
+  <rect x="365" y="384" width="696" height="58" rx="8" fill="#fbfaf5" stroke="#bfc8bd"/>
+  <text x="388" y="420" class="sans" font-size="15" fill="#a0a69e">&#35831;&#36755;&#20837;&#29992;&#25143;&#21517;</text>
+  <text x="365" y="495" class="serif" font-size="16" fill="#343b33">&#23494;&#30721;</text>
+  <rect x="365" y="512" width="696" height="58" rx="8" fill="#fbfaf5" stroke="#bfc8bd"/>
+  <text x="388" y="548" class="sans" font-size="15" fill="#a0a69e">&#35831;&#36755;&#20837;&#23494;&#30721;&#65288;&#33267;&#23569; 8 &#20301;&#65289;</text>
+  <path d="M1005 540c-10-14-25-21-39-21s-29 7-39 21c10 14 25 21 39 21s29-7 39-21z" fill="none" stroke="#6e7e72" stroke-width="1.8"/>
+  <circle cx="966" cy="540" r="6" fill="none" stroke="#6e7e72" stroke-width="1.8"/>
+  <rect x="365" y="624" width="696" height="58" rx="8" fill="#657f70"/>
+  <text x="713" y="661" text-anchor="middle" class="serif" font-size="18" font-weight="700" fill="#fbfaf3">&#30331;&#24405;</text>
+  <path d="M1010 650h25m-8-8 8 8-8 8" fill="none" stroke="#e7eee7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="365" y1="724" x2="1061" y2="724" stroke="#ded9ce"/>
+  <text x="365" y="767" class="serif" font-size="16" fill="#4e5d50">&#31532;&#19968;&#27425;&#20351;&#29992;&#65311;</text>
+  <text x="480" y="767" class="serif" font-size="16" fill="#657f70">&#21019;&#24314;&#26412;&#22320;&#30693;&#35782;&#31354;&#38388;</text>
+  <path d="M688 761h20m-7-7 7 7-7 7" fill="none" stroke="#657f70" stroke-width="1.7"/>
+  <text x="365" y="803" class="sans" font-size="12" fill="#858c82">&#27492;&#25805;&#20316;&#20250;&#21019;&#24314;&#39318;&#20010;&#36134;&#21495;&#21644;&#40664;&#35748;&#24037;&#20316;&#21306;&#65292;&#23545;&#24212;&#21518;&#31471;&#21021;&#22987;&#21270;&#25509;&#21475;&#12290;</text>
+
+  <!-- Status rail -->
+  <g transform="translate(1180 33)">
+    <path d="M3 4h18l10 10v28H3z" fill="none" stroke="#927052" stroke-width="2"/>
+    <path d="M21 4v11h10M9 25h16M9 33h16" fill="none" stroke="#927052" stroke-width="2"/>
+  </g>
+  <text x="1228" y="57" class="serif" font-size="24" font-weight="700" fill="#292a24">&#26412;&#22320;&#36816;&#34892;&#29366;&#24577;</text>
+  <text x="1228" y="87" class="sans" font-size="14" fill="#73776c">&#30331;&#24405;&#21069;&#20063;&#21487;&#20197;&#30830;&#35748;&#26381;&#21153;&#26159;&#21542;&#23601;&#32490;</text>
+  <line x1="1180" y1="116" x2="1492" y2="116" stroke="#d8d2c5"/>
+  <text x="1180" y="160" class="serif" font-size="18" fill="#353a31">&#26381;&#21153;&#26816;&#26597;</text>
+  <rect x="1180" y="184" width="312" height="70" rx="9" fill="#f8f5ed" stroke="#d8d2c5"/>
+  <circle cx="1210" cy="219" r="8" fill="#6d8a76"/>
+  <text x="1232" y="214" class="serif" font-size="16" fill="#30372f">KNOWNEST &#26381;&#21153;</text>
+  <text x="1232" y="237" class="sans" font-size="12" fill="#718074">&#24050;&#23601;&#32490; · /ready</text>
+  <text x="1180" y="304" class="serif" font-size="18" fill="#353a31">&#36134;&#21495;&#29366;&#24577;</text>
+  <rect x="1180" y="328" width="312" height="92" rx="9" fill="#f8f5ed" stroke="#d8d2c5"/>
+  <circle cx="1210" cy="365" r="8" fill="#b38457"/>
+  <text x="1232" y="360" class="serif" font-size="16" fill="#30372f">&#31561;&#24453;&#30331;&#24405;</text>
+  <text x="1232" y="385" class="sans" font-size="12" fill="#718074">&#30331;&#24405;&#21518;&#39564;&#35777; JWT &#20250;&#35805;</text>
+  <text x="1232" y="405" class="mono" font-size="10" fill="#9a8b73">/auth/login</text>
+  <text x="1180" y="474" class="serif" font-size="18" fill="#353a31">&#39318;&#27425;&#20351;&#29992;</text>
+  <rect x="1180" y="498" width="312" height="188" rx="9" fill="#f1eee4" stroke="#d8d2c5"/>
+  <text x="1204" y="535" class="serif" font-size="15" fill="#343b32">&#36824;&#27809;&#26377;&#26412;&#22320;&#36134;&#21495;&#65311;</text>
+  <text x="1204" y="566" class="sans" font-size="13" fill="#6f796e">&#21019;&#24314;&#29992;&#25143;&#21517;&#21644;&#23494;&#30721;&#21518;&#65292;&#31995;&#32479;&#20250;</text>
+  <text x="1204" y="590" class="sans" font-size="13" fill="#6f796e">&#21516;&#27493;&#21019;&#24314;&#40664;&#35748;&#24037;&#20316;&#21306;&#12290;</text>
+  <text x="1204" y="625" class="mono" font-size="10" fill="#8d806a">/auth/setup-status</text>
+  <text x="1204" y="655" class="mono" font-size="10" fill="#8d806a">/auth/setup</text>
+  <line x1="1180" y1="744" x2="1492" y2="744" stroke="#d8d2c5"/>
+  <text x="1180" y="782" class="serif" font-size="17" fill="#454b41">&#25968;&#25454;&#36793;&#30028;</text>
+  <text x="1180" y="814" class="sans" font-size="13" fill="#737b70">&#36134;&#21495;&#12289;&#25991;&#26723;&#19982;&#20250;&#35805;&#23646;&#20110;&#24403;&#21069;&#36816;&#34892;&#29615;&#22659;&#12290;</text>
+  <text x="1180" y="842" class="sans" font-size="13" fill="#737b70">&#19981;&#20250;&#22312;&#30331;&#24405;&#39029;&#23637;&#31034;&#20113;&#31471;&#36134;&#21495;&#20837;&#21475;&#12290;</text>
+  <text x="1180" y="954" class="mono" font-size="10" letter-spacing="1.2" fill="#8c8e82">AUTH / READY / SETUP</text>
+  <text x="36" y="996" class="sans" font-size="11" fill="#999b91">&#35270;&#35273;&#27010;&#24565;&#31295; · &#20013;&#25991;&#30331;&#24405;&#27969;&#31243; · &#20165;&#23637;&#31034;&#24050;&#23384;&#22312;&#30340;&#21518;&#31471;&#33021;&#21147;</text>
+</svg>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1152" viewBox="0 0 2048 1152">
+  <rect width="2048" height="1152" fill="#f4f0e6"/>
+  <style>
+    .sans{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif}.serif{font-family:Georgia,'Noto Serif SC','Songti SC',serif}.mono{font-family:Consolas,monospace}
+    .ink{fill:#263d34}.muted{fill:#7a877e}.green{fill:#315d4e}.line{stroke:#d9d3c7;stroke-width:1}.soft{fill:#edf1e9}.panel{fill:#fbfaf5}
+  </style>
+  <!-- top navigation -->
+  <rect x="0" y="0" width="2048" height="72" fill="#faf8f1"/>
+  <line x1="0" y1="72" x2="2048" y2="72" class="line"/>
+  <rect x="34" y="18" width="36" height="36" rx="9" fill="#315446"/>
+  <text x="52" y="44" text-anchor="middle" class="serif" font-size="22" fill="#f8f5ed">K</text>
+  <text x="86" y="42" class="sans ink" font-weight="700" letter-spacing="3" font-size="16">KNOWNEST</text>
+  <line x1="218" y1="20" x2="218" y2="52" stroke="#c9c0b1"/>
+  <text x="236" y="42" class="sans muted" font-size="13">企业知识工作台</text>
+  <text x="384" y="42" class="sans muted" font-size="13">知识库 / tets</text>
+  <circle cx="1830" cy="35" r="5" fill="#68b095"/><text x="1844" y="41" class="sans muted" font-size="13">系统运行中</text>
+  <text x="1950" y="42" class="sans green" font-size="13">退出登录</text><line x1="1944" y1="54" x2="2021" y2="54" stroke="#9bb8ab"/>
+
+  <!-- sidebar -->
+  <rect x="0" y="73" width="300" height="1079" fill="#f4f1e8"/>
+  <line x1="300" y1="73" x2="300" y2="1152" class="line"/>
+  <text x="28" y="112" class="sans muted" font-size="12">工作空间</text>
+  <rect x="28" y="128" width="244" height="51" rx="8" class="panel" stroke="#d4d0c5"/>
+  <text x="45" y="160" class="sans ink" font-size="15">Personal workspace</text><text x="252" y="160" class="sans muted" font-size="16">⌄</text>
+  <text x="28" y="208" class="green" font-size="24">＋</text><text x="49" y="209" class="sans green" font-size="13">新建工作空间</text>
+  <text x="28" y="264" class="sans muted" font-size="12">知识库</text>
+  <rect x="28" y="280" width="244" height="51" rx="8" class="panel" stroke="#d4d0c5"/><text x="45" y="312" class="sans ink" font-size="15">tets</text><text x="252" y="312" class="sans muted" font-size="16">⌄</text>
+  <text x="29" y="371" class="green" font-size="18">▣</text><text x="58" y="372" class="sans ink" font-weight="700" font-size="14">文档处理</text><text x="229" y="372" class="sans muted" font-size="11">切分策略</text>
+  <text x="28" y="420" class="green" font-size="23">＋</text><text x="49" y="421" class="sans green" font-size="13">新建知识库</text>
+  <line x1="28" y1="458" x2="272" y2="458" class="line"/>
+  <text x="30" y="504" class="green" font-size="18">▤</text><text x="58" y="505" class="sans ink" font-size="14">文档</text><text x="256" y="505" class="sans green" font-weight="700" font-size="12">1</text>
+  <text x="30" y="556" class="green" font-size="18">⊕</text><text x="58" y="557" class="sans ink" font-size="14">对话记录</text>
+  <text x="30" y="608" class="green" font-size="18">⚙</text><text x="58" y="609" class="sans ink" font-size="14">设置与记忆</text>
+  <rect x="20" y="645" width="260" height="48" rx="7" fill="#e5ebe1"/><text x="30" y="675" class="green" font-size="18">⌘</text><text x="58" y="676" class="sans ink" font-size="14" font-weight="700">MCP 管理</text><rect x="247" y="660" width="22" height="20" rx="10" fill="#c9dfd1"/><text x="258" y="675" text-anchor="middle" class="sans green" font-size="11">2</text>
+  <line x1="28" y1="722" x2="272" y2="722" class="line"/>
+  <text x="28" y="759" class="sans muted" font-size="12">最近文档</text>
+  <rect x="29" y="782" width="30" height="30" rx="5" fill="#e5eee2"/><text x="44" y="802" text-anchor="middle" class="serif green" font-weight="700" font-size="10">DOCX</text><text x="70" y="797" class="sans ink" font-size="12">智识探逸_6分钟演讲稿.docx</text><text x="70" y="816" class="sans muted" font-size="10">已索引</text>
+  <text x="28" y="871" class="green" font-size="22">＋</text><text x="49" y="872" class="sans green" font-size="13">上传文档</text>
+  <line x1="28" y1="900" x2="272" y2="900" class="line"/><text x="28" y="940" class="sans muted" font-size="11">当前工作空间数据</text><text x="28" y="972" class="sans ink" font-weight="700" font-size="20">1</text><text x="57" y="971" class="sans muted" font-size="11">个已连接 MCP 服务</text>
+
+  <!-- center workspace -->
+  <rect x="301" y="73" width="1065" height="1079" fill="#faf8f1"/>
+  <rect x="301" y="73" width="1065" height="118" fill="#faf8f1"/>
+  <text x="337" y="121" class="green" font-size="31">▱</text><text x="382" y="119" class="serif ink" font-size="26" font-weight="600">基于知识库与 MCP 工具进行回答</text>
+  <text x="382" y="150" class="sans muted" font-size="13">tets　·　当前使用 1 个文档与 1 个已连接 MCP 服务</text><rect x="1084" y="111" width="87" height="32" rx="16" fill="#e7f0e7"/><text x="1128" y="132" text-anchor="middle" class="sans green" font-size="12">切分：自动</text><text x="1275" y="132" class="sans muted" font-size="13">文档 1</text>
+  <line x1="301" y1="191" x2="1366" y2="191" class="line"/>
+  <rect x="334" y="213" width="341" height="47" rx="10" fill="#557966"/><text x="505" y="243" text-anchor="middle" class="sans" fill="#fff" font-size="14" font-weight="700">智能回答</text><rect x="675" y="213" width="170" height="47" fill="#faf8f1"/><text x="760" y="243" text-anchor="middle" class="sans muted" font-size="14">普通 RAG</text><text x="876" y="243" class="sans muted" font-size="12">ⓘ　知识库 + 已启用 MCP 工具</text>
+  <line x1="301" y1="279" x2="1366" y2="279" class="line"/>
+  <!-- transcript -->
+  <text x="369" y="326" class="sans muted" font-size="11">你的问题</text>
+  <rect x="369" y="341" width="940" height="77" rx="11" fill="#edf1e9"/><text x="391" y="385" class="serif ink" font-size="18">请查找项目中的 MCP 配置，并验证 GitHub 工具是否可用</text>
+  <text x="369" y="458" class="sans green" font-size="11">智能回答</text>
+  <text x="369" y="496" class="serif ink" font-size="18">我先检查已连接服务与工具权限，再调用 GitHub MCP 的搜索工具验证连接。</text>
+  <text x="369" y="531" class="serif ink" font-size="18">当前服务已完成初始化，工具返回正常。</text>
+  <rect x="369" y="565" width="940" height="117" rx="9" fill="#f1f5ed" stroke="#d3dfd3"/>
+  <circle cx="397" cy="594" r="8" fill="#5e9277"/><text x="417" y="599" class="sans green" font-size="12" font-weight="700">MCP 工具调用</text><text x="1173" y="599" class="sans muted" font-size="11">已完成 · 1.8s</text>
+  <text x="397" y="630" class="mono green" font-size="12">mcp_GitHub_search_issues</text><text x="397" y="656" class="mono muted" font-size="11">repository: org/repo　 query: bug　 limit: 5</text>
+  <rect x="369" y="708" width="940" height="92" rx="9" fill="#fbfaf5" stroke="#d9d3c7"/><circle cx="397" cy="737" r="8" fill="#5e9277"/><text x="417" y="742" class="sans green" font-size="12" font-weight="700">工具结果已回传模型</text><text x="397" y="770" class="serif ink" font-size="15">找到 5 个相关 issue，模型已基于结果整理可验证回答。</text>
+  <rect x="369" y="829" width="113" height="27" rx="5" fill="#e8f0e6"/><text x="425" y="847" text-anchor="middle" class="sans green" font-size="11">[1] MCP 结果</text><rect x="490" y="829" width="150" height="27" rx="5" fill="#e8f0e6"/><text x="565" y="847" text-anchor="middle" class="sans green" font-size="11">[2] 知识库文档</text>
+  <line x1="334" y1="901" x2="1334" y2="901" class="line"/>
+  <rect x="334" y="926" width="1000" height="64" rx="11" fill="#fffdfa" stroke="#cfc9bd"/><text x="357" y="965" class="green" font-size="21">⌕</text><text x="392" y="965" class="serif muted" font-size="16">继续追问，或让 Agent 调用已启用工具…</text><text x="1225" y="966" class="sans muted" font-size="11">0 / 12,000</text><rect x="1276" y="939" width="40" height="39" rx="7" fill="#315d4e"/><text x="1296" y="966" text-anchor="middle" fill="#fff" font-size="22">→</text>
+
+  <!-- right MCP inspector -->
+  <rect x="1367" y="73" width="681" height="1079" fill="#f7f4ec"/><line x1="1367" y1="73" x2="1367" y2="1152" class="line"/>
+  <text x="1402" y="119" class="sans muted" font-size="11" letter-spacing="2">MCP / RUNTIME INSPECTOR</text><text x="1402" y="158" class="serif ink" font-size="26" font-weight="600">工具链与连接状态</text><text x="1402" y="186" class="sans muted" font-size="12">本次回答暴露 2 个已启用工具，所有调用均可追溯。</text>
+  <rect x="1402" y="218" width="611" height="137" rx="10" fill="#fbfaf5" stroke="#ced9cf"/><circle cx="1432" cy="249" r="7" fill="#6ab59a"/><text x="1451" y="254" class="sans ink" font-size="15" font-weight="700">GitHub MCP</text><rect x="1899" y="234" width="82" height="26" rx="13" fill="#d9eadb"/><text x="1940" y="251" text-anchor="middle" class="sans green" font-size="11">已连接</text><text x="1432" y="285" class="sans muted" font-size="11">Streamable HTTP　·　初始化完成　·　最近心跳 12s 前</text><text x="1432" y="319" class="sans green" font-size="12">2 个工具已启用</text><text x="1792" y="319" class="sans muted" font-size="11">发现时间 14:32</text>
+  <text x="1402" y="396" class="sans muted" font-size="11" letter-spacing="1">已启用工具</text>
+  <rect x="1402" y="417" width="611" height="68" rx="8" fill="#edf3ec"/><circle cx="1431" cy="451" r="6" fill="#5e9277"/><text x="1450" y="447" class="mono green" font-size="12">search_issues</text><text x="1450" y="468" class="sans muted" font-size="11">搜索 GitHub Issue · schema 校验通过</text><text x="1958" y="455" class="sans green" font-size="16">✓</text>
+  <rect x="1402" y="496" width="611" height="68" rx="8" fill="#edf3ec"/><circle cx="1431" cy="530" r="6" fill="#5e9277"/><text x="1450" y="526" class="mono green" font-size="12">list_repositories</text><text x="1450" y="547" class="sans muted" font-size="11">列出仓库 · schema 校验通过</text><text x="1958" y="534" class="sans green" font-size="16">✓</text>
+  <text x="1402" y="612" class="sans muted" font-size="11" letter-spacing="1">本次调用轨迹</text>
+  <line x1="1427" y1="650" x2="1427" y2="856" stroke="#b7cdbd" stroke-width="2"/>
+  <circle cx="1427" cy="650" r="8" fill="#557966"/><text x="1451" y="647" class="sans green" font-size="12" font-weight="700">01　Agent 选择工具</text><text x="1451" y="670" class="sans muted" font-size="11">模型根据任务选择 search_issues</text>
+  <circle cx="1427" cy="725" r="8" fill="#557966"/><text x="1451" y="722" class="sans green" font-size="12" font-weight="700">02　参数校验通过</text><text x="1451" y="745" class="sans muted" font-size="11">arguments 符合已发现的 input schema</text>
+  <circle cx="1427" cy="800" r="8" fill="#557966"/><text x="1451" y="797" class="sans green" font-size="12" font-weight="700">03　远端结果回传</text><text x="1451" y="820" class="sans muted" font-size="11">外部 MCP Server 返回 structuredContent</text>
+  <rect x="1402" y="900" width="611" height="111" rx="9" fill="#eaf1e8"/><text x="1430" y="933" class="sans green" font-weight="700" font-size="12">安全状态</text><text x="1430" y="960" class="sans muted" font-size="11">认证密钥仅在后端解密后注入请求头</text><text x="1430" y="983" class="sans muted" font-size="11">调用已写入审计记录，未记录密钥和完整敏感参数</text>
+  <text x="1402" y="1072" class="sans green" font-size="12">打开 MCP 管理　→　</text><text x="1555" y="1072" class="sans muted" font-size="12">查看服务、发现工具与权限</text>
+</svg>

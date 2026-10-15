@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="970" viewBox="0 0 2048 970">
+  <rect width="2048" height="970" rx="14" fill="#f5f2e9"/>
+  <rect x="7" y="7" width="2034" height="956" rx="12" fill="#faf8f1" stroke="#d8d2c5" stroke-width="2"/>
+  <rect x="7" y="7" width="2034" height="60" fill="#fbfaf5"/>
+  <line x1="7" y1="67" x2="2041" y2="67" stroke="#d8d2c5" stroke-width="2"/>
+
+  <!-- top bar -->
+  <rect x="39" y="18" width="37" height="37" rx="8" fill="#355a4d"/>
+  <text x="57" y="45" text-anchor="middle" fill="#f5f2e9" font-family="Georgia, serif" font-size="25" font-weight="700">K</text>
+  <text x="90" y="43" fill="#1e322d" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="3">KNOWNEST</text>
+  <line x1="219" y1="20" x2="219" y2="51" stroke="#d8d2c5" stroke-width="2"/>
+  <text x="239" y="42" fill="#69736d" font-family="Arial, sans-serif" font-size="15">企业知识工作台</text>
+  <text x="373" y="42" fill="#7b837e" font-family="Arial, sans-serif" font-size="15">知识库 / test</text>
+  <circle cx="1820" cy="30" r="5" fill="#6da88d"/>
+  <text x="1836" y="36" fill="#728078" font-family="Arial, sans-serif" font-size="14">系统运行中</text>
+  <text x="1940" y="36" fill="#668379" font-family="Arial, sans-serif" font-size="14">退出登录</text>
+  <line x1="1939" y1="49" x2="2020" y2="49" stroke="#9eb9ad" stroke-width="1"/>
+
+  <!-- left rail -->
+  <rect x="7" y="67" width="332" height="896" fill="#f1eee5"/>
+  <line x1="339" y1="67" x2="339" y2="963" stroke="#d8d2c5" stroke-width="2"/>
+  <text x="31" y="108" fill="#65716a" font-family="Arial, sans-serif" font-size="14">工作空间</text>
+  <rect x="31" y="124" width="280" height="52" rx="9" fill="#fbfaf5" stroke="#d8d2c5" stroke-width="1.5"/>
+  <text x="49" y="156" fill="#354d45" font-family="Arial, sans-serif" font-size="16">Personal workspace</text>
+  <path d="M286 147 l8 8 l8-8" fill="none" stroke="#65716a" stroke-width="2"/>
+  <text x="32" y="207" fill="#5b796b" font-family="Arial, sans-serif" font-size="15">＋ 新建工作空间</text>
+  <text x="31" y="256" fill="#65716a" font-family="Arial, sans-serif" font-size="14">知识库</text>
+  <rect x="31" y="273" width="280" height="52" rx="9" fill="#fbfaf5" stroke="#d8d2c5" stroke-width="1.5"/>
+  <text x="49" y="305" fill="#354d45" font-family="Arial, sans-serif" font-size="16">test</text>
+  <path d="M286 296 l8 8 l8-8" fill="none" stroke="#65716a" stroke-width="2"/>
+
+  <!-- proposed entry -->
+  <rect x="31" y="339" width="280" height="54" rx="9" fill="#e4ede5" stroke="#9db7a7" stroke-width="1.5"/>
+  <path d="M51 356 h16 v18 h-16z M54 352 h10 M55 360 h8 M55 365 h8" fill="none" stroke="#4f705f" stroke-width="2"/>
+  <text x="81" y="372" fill="#355a4d" font-family="Arial, sans-serif" font-size="16" font-weight="600">文档处理</text>
+  <text x="228" y="372" fill="#6c8b7b" font-family="Arial, sans-serif" font-size="13">切分策略</text>
+  <text x="32" y="420" fill="#5b796b" font-family="Arial, sans-serif" font-size="15">＋ 新建知识库</text>
+  <line x1="31" y1="449" x2="310" y2="449" stroke="#d8d2c5" stroke-width="1"/>
+
+  <g fill="#52635b" font-family="Arial, sans-serif" font-size="16">
+    <text x="78" y="492">▣　文档</text><text x="288" y="492" text-anchor="end" font-size="13">1</text>
+    <text x="78" y="548">⊕　对话记录</text>
+    <text x="78" y="604">⚙　设置与记忆</text>
+    <text x="78" y="660">♧　MCP 管理</text>
+  </g>
+  <line x1="31" y1="687" x2="310" y2="687" stroke="#d8d2c5" stroke-width="1"/>
+  <text x="31" y="731" fill="#65716a" font-family="Arial, sans-serif" font-size="14">最近文档</text>
+  <rect x="39" y="751" width="44" height="24" rx="5" fill="#dce9dc"/>
+  <text x="61" y="768" text-anchor="middle" fill="#52735d" font-family="Arial, sans-serif" font-size="11" font-weight="700">DOCX</text>
+  <text x="94" y="769" fill="#4b5d55" font-family="Arial, sans-serif" font-size="13">《劳动教育实践4-专业劳动…</text>
+  <text x="287" y="769" text-anchor="end" fill="#71907f" font-family="Arial, sans-serif" font-size="12">已索引</text>
+  <text x="32" y="823" fill="#5b796b" font-family="Arial, sans-serif" font-size="15">＋ 上传文档</text>
+  <line x1="31" y1="906" x2="310" y2="906" stroke="#d8d2c5" stroke-width="1"/>
+  <text x="31" y="937" fill="#849089" font-family="Arial, sans-serif" font-size="13">当前工作空间数据</text>
+
+  <!-- center -->
+  <rect x="340" y="67" width="1240" height="896" fill="#fcfbf7"/>
+  <line x1="340" y1="174" x2="1580" y2="174" stroke="#e0dbd0" stroke-width="1"/>
+  <path d="M377 111 h21 v25 h-21z M381 105 h13 M382 118 h11 M382 124 h11" fill="none" stroke="#557867" stroke-width="2.2"/>
+  <text x="426" y="125" fill="#243932" font-family="Georgia, serif" font-size="26" font-weight="700">基于已索引的知识库进行问答</text>
+  <text x="426" y="151" fill="#7e8781" font-family="Arial, sans-serif" font-size="14">test · 当前使用 1 个文档作为知识来源</text>
+  <text x="1495" y="124" fill="#6f7c75" font-family="Arial, sans-serif" font-size="14">文档 1</text>
+  <rect x="1349" y="102" width="105" height="29" rx="15" fill="#e8efe8"/>
+  <text x="1401" y="121" text-anchor="middle" fill="#52745e" font-family="Arial, sans-serif" font-size="13">切分：自动</text>
+
+  <rect x="372" y="187" width="338" height="44" rx="9" fill="#4f705f"/>
+  <rect x="710" y="187" width="338" height="44" rx="9" fill="#fbfaf5" stroke="#d8d2c5"/>
+  <text x="541" y="215" text-anchor="middle" fill="#fbfaf5" font-family="Arial, sans-serif" font-size="15" font-weight="600">普通 RAG</text>
+  <text x="879" y="215" text-anchor="middle" fill="#69776f" font-family="Arial, sans-serif" font-size="15">智能回答</text>
+  <circle cx="1084" cy="209" r="9" fill="none" stroke="#9aaba1" stroke-width="2"/><text x="1081" y="214" fill="#809087" font-family="Georgia, serif" font-size="13">i</text>
+  <text x="1104" y="214" fill="#89948e" font-family="Arial, sans-serif" font-size="13">只基于当前知识库检索回答</text>
+  <line x1="372" y1="249" x2="1548" y2="249" stroke="#e0dbd0"/>
+  <rect x="474" y="287" width="930" height="90" rx="12" fill="#edf3eb"/>
+  <text x="496" y="317" fill="#83a08d" font-family="Arial, sans-serif" font-size="13">你的问题</text>
+  <text x="496" y="351" fill="#53665c" font-family="Georgia, serif" font-size="20">你觉得这个项目有哪些需要改进的</text>
+  <text x="474" y="426" fill="#87a08f" font-family="Arial, sans-serif" font-size="13">知识库回答</text>
+  <text x="474" y="464" fill="#59665f" font-family="Georgia, serif" font-size="20">整体看，项目已经形成了“手机采集—后端识别—导航决策—语音反馈”的原型链路，</text>
+  <text x="474" y="501" fill="#59665f" font-family="Georgia, serif" font-size="20">当前最需要加强的是安全边界、可复现测试和目标用户验证。</text>
+  <line x1="474" y1="542" x2="1404" y2="542" stroke="#e0dbd0"/>
+  <text x="474" y="601" fill="#2f493e" font-family="Georgia, serif" font-size="28" font-weight="700">优先改进</text>
+  <text x="474" y="647" fill="#5e6c65" font-family="Georgia, serif" font-size="19">1. 把交通灯提示设计得更保守</text>
+  <text x="497" y="684" fill="#69746e" font-family="Arial, sans-serif" font-size="16">区分“识别到绿灯”和“确认可以安全通行”，避免单凭颜色给出判断。</text>
+  <rect x="372" y="861" width="1174" height="70" rx="12" fill="#fffefb" stroke="#d8d2c5" stroke-width="1.5"/>
+  <text x="404" y="903" fill="#a4ada7" font-family="Arial, sans-serif" font-size="16">⌕　基于当前知识库提问…</text>
+  <text x="1412" y="903" fill="#b0b5b0" font-family="Arial, sans-serif" font-size="13">0 / 12,000</text>
+  <rect x="1499" y="875" width="42" height="43" rx="9" fill="#a9c2b5"/>
+  <path d="M1512 895 h16 M1521 887 l8 8 l-8 8" fill="none" stroke="#fbfaf5" stroke-width="2"/>
+
+  <!-- right evidence -->
+  <rect x="1581" y="67" width="460" height="896" fill="#f6f3eb"/>
+  <line x1="1581" y1="67" x2="1581" y2="963" stroke="#d8d2c5" stroke-width="2"/>
+  <path d="M1612 119 h20 v24 h-20z M1616 114 h12 M1616 125 h11 M1616 131 h11" fill="none" stroke="#8e6f55" stroke-width="2"/>
+  <text x="1655" y="111" fill="#8d9a92" font-family="Arial, sans-serif" font-size="13">可追溯来源</text>
+  <text x="1655" y="146" fill="#604b3e" font-family="Georgia, serif" font-size="27" font-weight="700">来源与证据</text>
+  <rect x="1943" y="88" width="70" height="28" rx="8" fill="#dceadf"/><text x="1978" y="107" text-anchor="middle" fill="#5d876d" font-family="Arial, sans-serif" font-size="12">已准备</text>
+  <line x1="1611" y1="174" x2="2011" y2="174" stroke="#d8d2c5"/>
+  <rect x="1611" y="195" width="400" height="633" rx="11" fill="#fbfaf5" stroke="#e0dbd0"/>
+  <rect x="1630" y="218" width="36" height="36" rx="6" fill="#3f82b6"/><text x="1648" y="244" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="21" font-weight="700">W</text>
+  <text x="1680" y="235" fill="#53645c" font-family="Arial, sans-serif" font-size="14" font-weight="600">《劳动教育实践4-专业劳动实践》</text>
+  <text x="1680" y="257" fill="#929b95" font-family="Arial, sans-serif" font-size="12">第 1 段　·　heading</text>
+  <rect x="1630" y="280" width="362" height="510" rx="7" fill="#f5f1e7"/>
+  <text x="1651" y="317" fill="#6d716a" font-family="Georgia, serif" font-size="16">“模块封装地理编码、逆地理编码、周边检</text>
+  <text x="1651" y="347" fill="#6d716a" font-family="Georgia, serif" font-size="16">索和步行路线接口。AI 助手采用 ReAct 思</text>
+  <text x="1651" y="377" fill="#6d716a" font-family="Georgia, serif" font-size="16">路，先决定是否调用地图工具，再基于结果</text>
+  <text x="1651" y="407" fill="#6d716a" font-family="Georgia, serif" font-size="16">作答。最多迭代 10 次，单次超时默认 20</text>
+  <text x="1651" y="437" fill="#6d716a" font-family="Georgia, serif" font-size="16">秒，超时对类错误重试一次。”</text>
+  <text x="1630" y="855" fill="#8b948e" font-family="Arial, sans-serif" font-size="13">3 个片段 · 来源可追溯</text>
+
+  <!-- proposed popover callout -->
+  <rect x="243" y="381" width="344" height="276" rx="12" fill="#fffefb" stroke="#9db7a7" stroke-width="2"/>
+  <path d="M243 411 l-15 -14 l15 -14" fill="#fffefb" stroke="#9db7a7" stroke-width="2"/>
+  <text x="269" y="418" fill="#345448" font-family="Arial, sans-serif" font-size="16" font-weight="700">文档切分策略</text>
+  <text x="269" y="444" fill="#87938c" font-family="Arial, sans-serif" font-size="12">仅影响当前知识库的新上传文档</text>
+  <line x1="269" y1="462" x2="559" y2="462" stroke="#e1ddd3"/>
+  <circle cx="289" cy="493" r="8" fill="#4f705f"/><circle cx="289" cy="493" r="3" fill="#fffefb"/><text x="310" y="498" fill="#40584c" font-family="Arial, sans-serif" font-size="14" font-weight="600">自动（推荐）</text>
+  <circle cx="289" cy="532" r="8" fill="#fffefb" stroke="#b9c2bc" stroke-width="2"/><text x="310" y="537" fill="#69766f" font-family="Arial, sans-serif" font-size="14">按标题结构</text>
+  <circle cx="289" cy="571" r="8" fill="#fffefb" stroke="#b9c2bc" stroke-width="2"/><text x="310" y="576" fill="#69766f" font-family="Arial, sans-serif" font-size="14">按章节与分页</text>
+  <circle cx="289" cy="610" r="8" fill="#fffefb" stroke="#b9c2bc" stroke-width="2"/><text x="310" y="615" fill="#69766f" font-family="Arial, sans-serif" font-size="14">递归切分</text>
+  <rect x="466" y="598" width="89" height="32" rx="7" fill="#4f705f"/><text x="510" y="619" text-anchor="middle" fill="#fffefb" font-family="Arial, sans-serif" font-size="12">查看高级设置</text>
+</svg>

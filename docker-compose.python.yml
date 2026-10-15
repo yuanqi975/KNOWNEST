@@ -1,0 +1,68 @@
+services:
+  python-api:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://weknora:weknora@postgres:5432/weknora
+      REDIS_URL: redis://redis:6379/0
+      MILVUS_URI: http://milvus:19530
+      STORAGE_PATH: /data/uploads
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+      RERANK_BASE_URL: ${RERANK_BASE_URL:-https://api.siliconflow.cn/v1}
+      RERANK_API_KEY: ${RERANK_API_KEY:-}
+      RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
+      RERANK_ENABLED: ${RERANK_ENABLED:-true}
+    ports: ["8000:8000"]
+    volumes: ["python-files:/data/uploads"]
+    depends_on: [postgres, redis, milvus]
+  python-worker:
+    build:
+      context: ./backend
+    command: celery -A app.workers.celery_app worker --loglevel=INFO
+    environment:
+      DATABASE_URL: postgresql+psycopg://weknora:weknora@postgres:5432/weknora
+      REDIS_URL: redis://redis:6379/0
+      MILVUS_URI: http://milvus:19530
+      STORAGE_PATH: /data/uploads
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+      RERANK_BASE_URL: ${RERANK_BASE_URL:-https://api.siliconflow.cn/v1}
+      RERANK_API_KEY: ${RERANK_API_KEY:-}
+      RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
+      RERANK_ENABLED: ${RERANK_ENABLED:-true}
+    volumes: ["python-files:/data/uploads"]
+    depends_on: [postgres, redis, milvus]
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: weknora
+      POSTGRES_PASSWORD: weknora
+      POSTGRES_DB: weknora
+    ports: ["5432:5432"]
+    volumes: ["python-postgres:/var/lib/postgresql/data"]
+  redis:
+    image: redis:7-alpine
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    command: etcd -advertise-client-urls=http://0.0.0.0:2379 -listen-client-urls=http://0.0.0.0:2379 --data-dir=/etcd
+    volumes: ["python-etcd:/etcd"]
+  minio:
+    image: quay.io/minio/minio:latest
+    command: minio server /minio_data
+    volumes: ["python-minio:/minio_data"]
+  milvus:
+    image: milvusdb/milvus:v2.4.15
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    depends_on: [etcd, minio]
+    ports: ["19530:19530"]
+volumes:
+  python-files:
+  python-postgres:
+  python-etcd:
+  python-minio:
