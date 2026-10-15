@@ -73,3 +73,16 @@ dataset/evaluation/
 output/evaluation/
 data/retrieval-eval/
 data/runtime-check/
+
+# Image assets intentionally kept out of the GitHub repository
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.ico
+*.tif
+*.tiff
+*.avif
+*.svg
