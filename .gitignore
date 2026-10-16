@@ -86,3 +86,8 @@ data/runtime-check/
 *.tiff
 *.avif
 *.svg
+
+# Screenshots referenced by the public README
+!docs/images/knownest-login.png
+!docs/images/knownest-knowledge-workspace.png
+!docs/images/knownest-source-preview.png
