@@ -10,7 +10,6 @@ from app.core.db import get_db
 from app.models.models import User, Workspace
 
 _PASSWORD_HASH_PREFIX = "knownest-sha256$"
-_LEGACY_PASSWORD_HASH_PREFIX = "weknora-sha256$"
 
 
 def _bcrypt_secret(value: str) -> str:
@@ -25,13 +24,15 @@ def hash_password(value: str) -> str:
 
 
 def verify_password(value: str, hashed: str) -> bool:
-    # Existing database rows keep their original format until a password is reset.
-    for prefix in (_PASSWORD_HASH_PREFIX, _LEGACY_PASSWORD_HASH_PREFIX):
-        if hashed.startswith(prefix):
-            return bcrypt.checkpw(
-                _bcrypt_secret(value).encode("ascii"),
-                hashed[len(prefix):].encode("ascii"),
-            )
+    # Historical formats label the SHA-256 pre-hash with the application name.
+    # Identify the algorithm independently of that label so rebranding does not
+    # require rewriting existing password hashes.
+    scheme, separator, payload = hashed.partition("$")
+    if separator and scheme.endswith("-sha256") and scheme[:-len("-sha256")]:
+        return bcrypt.checkpw(
+            _bcrypt_secret(value).encode("ascii"),
+            payload.encode("ascii"),
+        )
     # Keep accounts created before the pre-hash change usable. Their bcrypt
     # hashes retain the historical 72-byte limitation.
     return bcrypt.checkpw(value.encode("utf-8"), hashed.encode("ascii"))

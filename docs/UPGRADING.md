@@ -19,9 +19,10 @@ with `localhost`. Credentials with URL-reserved characters must be percent
 encoded in connection URLs. Never delete a data volume to resolve a branding
 mismatch.
 
-New password hashes use `knownest-sha256$`. Verification also accepts the
-previous `weknora-sha256$` format and plain bcrypt, so existing accounts remain
-usable without changing stored hashes.
+New password hashes use `knownest-sha256$`. Verification recognizes historical
+application-labelled SHA-256/bcrypt hashes by their `-sha256$` algorithm suffix
+and also accepts plain bcrypt, so existing accounts remain usable without
+changing stored hashes.
 
 Browser storage now uses `knownest_python_token` and `knownest_active_conversation`
 keys. Sign in again after upgrading. Conversations and uploaded documents remain

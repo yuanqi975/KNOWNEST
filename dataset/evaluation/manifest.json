@@ -27,7 +27,7 @@
       "origin_path": "README.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "runtime-readme.md",
-      "sha256": "8a294daae77c6d51332a3f7f8cbfa90e3a5bcaa0a7d38800daa8e5cbda1dd7d7"
+      "sha256": "89c94a6aa922b2704bfbe2070e6cf27c005370f8d2e16c58e56adf9eecd5e1f8"
     },
     {
       "id": "product",
@@ -51,7 +51,7 @@
       "origin_path": "dataset/evaluation/corpus/snapshot_production_review.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "production-review.md",
-      "sha256": "221353407a1e47d39c96278d2dc0a3808cd49aabaf1df3a67d0fa1e1801b0ffc"
+      "sha256": "6c72e2fdb93402f314d05a51e60024420664e6e58b2e4629f4f492923d890d15"
     },
     {
       "id": "chunking",
@@ -59,7 +59,7 @@
       "origin_path": "docs/CHUNKING.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "chunking-guide.md",
-      "sha256": "46ce81e86536b09a60ff8d6cfce6fd324a211397358b1b15ee591b1689e4a11b"
+      "sha256": "3622a70c54ac7a3ce1d89c9810315e4b4eaf48658f1486dff19a6f351bb0d96e"
     },
     {
       "id": "p0p1",
@@ -67,7 +67,7 @@
       "origin_path": "dataset/evaluation/corpus/p0p1_targets.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "p0p1-targets.md",
-      "sha256": "8242c9a9442ac0bf383152d7fd90ed017854ff333ac818b49da4271f5e19b4fd"
+      "sha256": "d7a4be4d9cdb618f02f474869976c49e76ff2c00a42915a062597c8f34e9b218"
     },
     {
       "id": "handbook",
@@ -75,7 +75,7 @@
       "origin_path": "dataset/evaluation/corpus/synthetic_handbook_zh.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "synthetic-handbook.md",
-      "sha256": "c08b2a75e579d5fabdd0dc0d25c022dea8fb8eee055b5c722d277304b2bb8637"
+      "sha256": "5d7c6461235911c32295e0636450aec843d4b3b0e26450ebb81a2c309966b571"
     },
     {
       "id": "policy_v1",
@@ -107,7 +107,7 @@
       "origin_path": "dataset/evaluation/corpus/synthetic_research_en.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "synthetic-research.md",
-      "sha256": "73842716ff893f889f91ca035bee1a802f730648678d2d8f06f51e31f0f898ee"
+      "sha256": "91a135f4a39014f7a88e78bedff474e35dad0b8ace64836ea4d3357465c60278"
     },
     {
       "id": "table_notes",
@@ -123,7 +123,7 @@
       "origin_path": "dataset/evaluation/corpus/absence_register.md",
       "snapshot_version": "knownest-python-runtime-p0p1-v1",
       "upload_name": "absence-register.md",
-      "sha256": "a8d13ad9c549c4da7801505fce41eaf506a5a0e1de647b4e55540e4fce3004d2"
+      "sha256": "cce2f7017286b415369caf7bb89b94d0e7270bc84274ec80f2c1f93cb5b9c0c5"
     },
     {
       "id": "table_docx",
@@ -134,8 +134,8 @@
       "sha256": "e3948c74fe02613dd53e16726180a8f3bdb214945f9a399e149fdbb96dc7f33e"
     }
   ],
-  "cases_sha256": "0025878e1007768d5c839738f98e8cede439ba82fa859b0f93f7b2effcf301db",
-  "scenarios_sha256": "b7b1aa1de1355e1b75c546434c3991f5d8a49aa9ebd410b17872e28d955d98d6",
+  "cases_sha256": "ca8db7e137496831cc5e1450b32c70c74ef9caa182d5d49384e863b5104f6c21",
+  "scenarios_sha256": "dff87e23f2ffc2fd54602b72dcac1499cd23b5ca19f1e8828a616ecda40e3928",
   "rubric_path": "dataset/evaluation/rubric.md",
   "annotation_review_status": "human_review_pending_before_acceptance",
   "baseline_and_target": "Runtime baseline observations are reported separately from the P0/P1 target contract; unsupported target capabilities are not scored as baseline passes."

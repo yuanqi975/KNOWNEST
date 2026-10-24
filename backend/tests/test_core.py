@@ -51,7 +51,7 @@ def test_password_hash_supports_multibyte_passwords():
     assert not verify_password(password + "!", hashed)
 
 
-@pytest.mark.parametrize("prefix", ["knownest-sha256$", "weknora-sha256$"])
+@pytest.mark.parametrize("prefix", ["knownest-sha256$", "legacy-app-sha256$"])
 def test_password_hash_remains_compatible_after_rebranding(prefix):
     password = "existing-account-password"
     current = hash_password(password)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -51,7 +50,7 @@ def build_snapshots(*, refresh: bool = False) -> None:
         if origin != snapshot and (refresh or not (ROOT / snapshot).exists()):
             target = ROOT / snapshot
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / origin, target)
+            target.write_text((ROOT / origin).read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
 
 
 def build_table_docx() -> None:
@@ -200,7 +199,7 @@ def build_scenarios() -> None:
     for definition in definitions:
         add_scenario(*definition)
     assert len(SCENARIOS) >= 16
-    (EVAL / "scenarios.json").write_text(json.dumps({"schema_version": 1, "scenario_count": len(SCENARIOS), "scenarios": SCENARIOS}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (EVAL / "scenarios.json").write_text(json.dumps({"schema_version": 1, "scenario_count": len(SCENARIOS), "scenarios": SCENARIOS}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def Q(cat: str, lang: str, query: str, answer: str, refs: list[tuple[str, str]], **kw) -> None:
@@ -434,7 +433,7 @@ def build_cases() -> None:
     assert counts == {"simple": 28, "composite": 20, "no_answer": 18, "conflict": 12, "table_calculation": 12, "multi_turn": 10, "tools_mcp": 10, "degradation": 10}, counts
     assert languages == {"zh": 90, "en": 30}, languages
     path = EVAL / "cases.jsonl"
-    path.write_text("".join(json.dumps(item, ensure_ascii=False, separators=(",", ":")) + "\n" for item in cases), encoding="utf-8")
+    path.write_text("".join(json.dumps(item, ensure_ascii=False, separators=(",", ":")) + "\n" for item in cases), encoding="utf-8", newline="\n")
 
 
 def build_manifest() -> None:
@@ -464,7 +463,7 @@ def build_manifest() -> None:
         "annotation_review_status": "human_review_pending_before_acceptance",
         "baseline_and_target": "Runtime baseline observations are reported separately from the P0/P1 target contract; unsupported target capabilities are not scored as baseline passes.",
     }
-    (EVAL / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (EVAL / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
