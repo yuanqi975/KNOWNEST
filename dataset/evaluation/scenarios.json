@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "scenario_count": 16,
+  "scenarios": [
+    {
+      "id": "SCN-UPLOAD-TO-INDEX",
+      "category": "upload_to_index",
+      "language": "zh",
+      "question": "上传后从任务完成到向量可检索的端到端链路是否一致？",
+      "fault_injection": "upload_to_index",
+      "steps": [
+        "上传固定 Markdown 样本",
+        "轮询任务及文档状态至终态",
+        "搜索专属标记并检查 chunk/vector 对应关系"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "Job 与 Document 均为 indexed",
+          "搜索结果只属于评测 Workspace"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-EMBED-RETRY",
+      "category": "embedding_timeout_then_retry",
+      "language": "zh",
+      "question": "Embedding 超时后重试能否恢复，且不遗留半成品索引？",
+      "fault_injection": "embedding_timeout_then_retry",
+      "steps": [
+        "对隔离评测请求注入一次 Embedding 超时",
+        "确认任务失败或显式降级",
+        "移除注入并触发重试/重建",
+        "再次查询并比较 SQL 与向量状态"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "故障轮次不得标记 indexed",
+          "成功重试后每个可检索 chunk 只有一个有效向量"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-RERANK-TIMEOUT",
+      "category": "rerank_timeout",
+      "language": "zh",
+      "question": "Rerank 超时是否出现在检索降级状态和 SSE 诊断中？",
+      "fault_injection": "rerank_timeout",
+      "steps": [
+        "让 Rerank endpoint 延迟至超时",
+        "运行检索和 RAG SSE",
+        "检查诊断字段与最终回答声明"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "标明 rerank_used=false 及原因",
+          "不能将降级结果称为完整重排结果"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-MILVUS-FAILURE",
+      "category": "milvus_unavailable",
+      "language": "zh",
+      "question": "Milvus 不可用时是否会静默切换到进程内内存向量索引？",
+      "fault_injection": "milvus_unavailable",
+      "steps": [
+        "使用独立 Milvus collection 并注入连接失败",
+        "执行上传或搜索",
+        "检查 API/job 状态和日志"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "不发生无提示的内存索引回退",
+          "错误可诊断且不伪称向量检索成功"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-UPLOAD-GUARDS",
+      "category": "oversized_and_unsupported_upload",
+      "language": "zh",
+      "question": "超出大小上限或使用不支持扩展名时，会不会留下孤儿记录/文件？",
+      "fault_injection": "oversized_and_unsupported_upload",
+      "steps": [
+        "上传超过隔离环境配置上限的文件",
+        "上传不支持的扩展名",
+        "检查数据库、任务和 storage path"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "分别返回 413 和 400",
+          "失败请求无 document/job/文件残留"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-WORKER-RESTART",
+      "category": "worker_restart",
+      "language": "zh",
+      "question": "Worker 重启后进行中的索引任务能否安全恢复？",
+      "fault_injection": "worker_restart",
+      "steps": [
+        "在隔离任务进入 embedding 阶段暂停 Worker",
+        "重启 Worker",
+        "轮询原始 job 并搜索样本"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "job 达到明确终态",
+          "恢复不重复创建孤儿 chunk/vector"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-INDEX-IDEMPOTENCY",
+      "category": "index_retry",
+      "language": "zh",
+      "question": "同一文档重复重试和重建是否幂等？",
+      "fault_injection": "index_retry",
+      "steps": [
+        "保存初次 chunk/vector 清单",
+        "对同一文档连续执行两次 reindex",
+        "比较内容、数量和向量归属"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "不产生重复活动 chunk/vector",
+          "失败版本不会覆盖最近一次有效内容"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-DELETE-CLEANUP",
+      "category": "document_delete",
+      "language": "zh",
+      "question": "删除文档后 SQL、Milvus 和文件存储是否都清理完成？",
+      "fault_injection": "document_delete",
+      "steps": [
+        "索引专属 DOCX/Markdown 文件",
+        "通过删除 API 删除",
+        "复查 document/chunk/job、Milvus IDs 和存储路径"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "所有文档向量被删除",
+          "文件和记录清理结果一致"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-VECTOR-RECONCILE",
+      "category": "vector_reconciliation",
+      "language": "zh",
+      "question": "向量对账发现缺失向量或孤儿向量后能否修复且可重复执行？",
+      "fault_injection": "vector_reconciliation",
+      "steps": [
+        "在隔离 collection 中分别制造 SQL-only chunk 和 vector-only ID",
+        "运行 reconciliation",
+        "再运行一次并核对差异集"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "修复缺失向量并删除孤儿向量",
+          "二次运行无新增变更；若功能缺失标记 not_implemented"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-SSE-CANCEL",
+      "category": "sse_cancel",
+      "language": "zh",
+      "question": "Agent 取消时 SSE 是否有唯一终态且不会随后补发 complete？",
+      "fault_injection": "sse_cancel",
+      "steps": [
+        "启动可控延迟 Agent 请求",
+        "发送取消请求",
+        "收集直到 SSE 流关闭"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "出现 cancelled/error 终态",
+          "取消后不再出现 agent_complete"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-CITATION-VALIDATION",
+      "category": "invalid_citation",
+      "language": "zh",
+      "question": "模型返回不存在或跨 Workspace 引用 ID 时如何处置？",
+      "fault_injection": "invalid_citation",
+      "steps": [
+        "在隔离用例中让模型输出伪造 chunk ID",
+        "读取 SSE citation 和已存 Citation",
+        "用另一个 Workspace 的真实 chunk 重复"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "无效/越权 ID 不进入最终引用",
+          "修正失败时明确降级而不伪造来源；若缺少校验标记 not_implemented"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-CROSS-WORKSPACE",
+      "category": "cross_workspace_access",
+      "language": "zh",
+      "question": "跨 Workspace 搜索、读取文档和 citation endpoint 是否严格隔离？",
+      "fault_injection": "cross_workspace_access",
+      "steps": [
+        "在两个测试 Workspace 各上传含唯一 canary 的文档",
+        "使用 A 的 token 查询/读取 B 的文档和 chunk",
+        "检查 body、citation、SSE 与日志"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "越权请求统一拒绝/隐藏为 404",
+          "B 的 canary 零次出现在 A 的响应或引用中"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-MCP-FAILURE",
+      "category": "mcp_tool_failure",
+      "language": "en",
+      "question": "Does an MCP tool failure or timeout become an explicit failure rather than fabricated success?",
+      "fault_injection": "mcp_tool_failure",
+      "steps": [
+        "Register an enabled test MCP tool that returns a controlled error",
+        "Run an Agent query that requires it",
+        "Inspect tool result, SSE terminal event, and final answer"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "Tool error is visible and bounded",
+          "The final answer never claims a successful lookup"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-MCP-TIMEOUT",
+      "category": "mcp_tool_timeout",
+      "language": "en",
+      "question": "Does an MCP tool exceeding its configured timeout terminate within the allowed bound?",
+      "fault_injection": "mcp_tool_timeout",
+      "steps": [
+        "Register a test MCP tool that delays beyond the configured limit",
+        "Invoke it in Agent mode",
+        "Measure latency and inspect terminal events"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "Timeout is surfaced within the configured bound",
+          "No fabricated tool output or hanging SSE stream"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-SSE-EVENTS",
+      "category": "sse_event_contract",
+      "language": "zh",
+      "question": "RAG 和 Agent SSE 是否按约定输出检索、引用、工具和终态事件？",
+      "fault_injection": "sse_event_contract",
+      "steps": [
+        "分别执行 RAG 与 Agent 的受控请求",
+        "记录完整 event/data 帧",
+        "检查 event 顺序、JSON schema 和连接关闭"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "RAG 包含 retrieval_result/citation/message_complete",
+          "Agent 的工具调用有结果及最终终态；不输出 hidden chain of thought"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    },
+    {
+      "id": "SCN-REBUILD-CLEANUP",
+      "category": "rebuild_after_partial_failure",
+      "language": "en",
+      "question": "After a failed parse or interrupted index, does rebuild clean stale state and converge?",
+      "fault_injection": "rebuild_after_partial_failure",
+      "steps": [
+        "Inject a failure after parse or vector upsert in an isolated fixture",
+        "Rebuild the document",
+        "Compare latest SQL chunks, active vectors, status, and stored file"
+      ],
+      "environment": "isolated_local_only",
+      "contract": {
+        "setup": "Use the isolated local evaluation database, workspace, knowledge base, storage path and vector collection; inject only the named fault.",
+        "assertions": [
+          "Observe the expected API, SSE, job, database and vector-store state",
+          "Never report success when the dependency or operation failed",
+          "No cross-workspace data exposure",
+          "Cleanup leaves no evaluation documents, chunks, vectors, files, or sessions",
+          "Stale vectors are removed or reconciled",
+          "A rebuild converges to one indexed version or a clear failed state"
+        ],
+        "manual_review_required": true
+      },
+      "baseline": {
+        "status": "measure_current_behavior"
+      },
+      "target": {
+        "status": "required",
+        "pass_condition": "All listed assertions hold; retain redacted trace and cleanup evidence."
+      }
+    }
+  ]
+}

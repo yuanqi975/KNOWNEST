@@ -4,7 +4,7 @@ export type JobStatus = 'pending' | 'processing' | 'parsed' | 'embedding' | 'ind
 export type ChunkingStrategy = 'auto' | 'heading' | 'heuristic' | 'recursive' | 'legacy'
 export type ChunkingConfig = { strategy: ChunkingStrategy; chunk_size: number; chunk_overlap: number; separators: string[]; token_limit: number; languages: string[]; enable_parent_child: boolean; parent_chunk_size: number }
 
-function getToken() { return localStorage.getItem('weknora_python_token') || '' }
+function getToken() { return localStorage.getItem('knownest_python_token') || '' }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
@@ -58,14 +58,17 @@ export const runtimeApi = {
   createConversation: (workspaceId: string, kbId: string, modelId?: string) => request<any>('/conversations', { method: 'POST', body: JSON.stringify({ workspace_id: workspaceId, knowledge_base_id: kbId, model_id: modelId || null }) }),
   conversations: (workspaceId: string, kbId?: string) => request<any[]>(`/conversations?workspace_id=${encodeURIComponent(workspaceId)}${kbId ? `&knowledge_base_id=${encodeURIComponent(kbId)}` : ''}`),
   conversation: (conversationId: string) => request<any>(`/conversations/${conversationId}`),
+  renameConversation: (conversationId: string, title: string) => request<{ id: string; title: string }>(`/conversations/${conversationId}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
+  deleteConversation: (conversationId: string, includeSavedMemories = false) => request<void>(`/conversations/${conversationId}?include_saved_memories=${includeSavedMemories}`, { method: 'DELETE' }),
+  conversationContext: (conversationId: string) => request<any>(`/conversations/${conversationId}/context`),
   cancelConversation: (conversationId: string) => request<any>(`/conversations/${conversationId}/cancel`, { method: 'POST' }),
   cancelAgent: (sessionId: string) => request<any>(`/agent/sessions/${sessionId}/cancel`, { method: 'POST' }),
   models: (workspaceId: string) => request<any[]>(`/workspaces/${workspaceId}/models`),
   memories: (workspaceId: string) => request<any[]>(`/workspaces/${workspaceId}/memories`),
   createMemory: (workspaceId: string, payload: any) => request<any>(`/workspaces/${workspaceId}/memories`, { method: 'POST', body: JSON.stringify({ ...payload, workspace_id: workspaceId }) }),
   updateMemory: (memoryId: string, payload: any) => request<any>(`/memories/${memoryId}`, { method: 'PATCH', body: JSON.stringify(payload) }),
-  confirmMemory: (memoryId: string) => request<any>(`/memories/${memoryId}/confirm`, { method: 'POST' }),
-  rejectMemory: (memoryId: string) => request<any>(`/memories/${memoryId}/reject`, { method: 'POST' }),
+  confirmMemory: (memoryId: string, version?: number) => request<any>(`/memories/${memoryId}/confirm`, { method: 'POST', body: JSON.stringify({ version }) }),
+  rejectMemory: (memoryId: string, version?: number) => request<any>(`/memories/${memoryId}/reject`, { method: 'POST', body: JSON.stringify({ version }) }),
   deleteMemory: (memoryId: string) => request<void>(`/memories/${memoryId}`, { method: 'DELETE' }),
   mcpServers: (workspaceId: string) => request<any[]>(`/workspaces/${workspaceId}/mcp-servers`),
   mcpServer: (serverId: string) => request<any>(`/mcp-servers/${serverId}`),

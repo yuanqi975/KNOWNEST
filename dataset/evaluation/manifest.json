@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "dataset_id": "knownest-python-runtime-p0p1-v1",
+  "description": "Golden QA and failure-scenario fixture for the Python Runtime; synthetic organization documents are fictional.",
+  "case_count": 120,
+  "qa_case_count": 120,
+  "scenario_case_count": 16,
+  "scenario_count": 16,
+  "category_counts": {
+    "simple": 28,
+    "composite": 20,
+    "no_answer": 18,
+    "conflict": 12,
+    "table_calculation": 12,
+    "multi_turn": 10,
+    "tools_mcp": 10,
+    "degradation": 10
+  },
+  "language_counts": {
+    "zh": 90,
+    "en": 30
+  },
+  "sources": [
+    {
+      "id": "readme",
+      "path": "dataset/evaluation/corpus/snapshot_readme.md",
+      "origin_path": "README.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "runtime-readme.md",
+      "sha256": "8a294daae77c6d51332a3f7f8cbfa90e3a5bcaa0a7d38800daa8e5cbda1dd7d7"
+    },
+    {
+      "id": "product",
+      "path": "dataset/evaluation/corpus/snapshot_product.md",
+      "origin_path": "PRODUCT.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "product.md",
+      "sha256": "c0b1bcce8f1ae771f47602a03523799bc8a290d5842ed948951ececbe2ce2ec3"
+    },
+    {
+      "id": "api",
+      "path": "dataset/evaluation/corpus/snapshot_api.md",
+      "origin_path": "backend/API.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "runtime-api.md",
+      "sha256": "4743000902fd465915ceadd646989979b1423c39add1c8b04c88af7a15a10f41"
+    },
+    {
+      "id": "review",
+      "path": "dataset/evaluation/corpus/snapshot_production_review.md",
+      "origin_path": "dataset/evaluation/corpus/snapshot_production_review.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "production-review.md",
+      "sha256": "221353407a1e47d39c96278d2dc0a3808cd49aabaf1df3a67d0fa1e1801b0ffc"
+    },
+    {
+      "id": "chunking",
+      "path": "dataset/evaluation/corpus/snapshot_chunking.md",
+      "origin_path": "docs/CHUNKING.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "chunking-guide.md",
+      "sha256": "46ce81e86536b09a60ff8d6cfce6fd324a211397358b1b15ee591b1689e4a11b"
+    },
+    {
+      "id": "p0p1",
+      "path": "dataset/evaluation/corpus/p0p1_targets.md",
+      "origin_path": "dataset/evaluation/corpus/p0p1_targets.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "p0p1-targets.md",
+      "sha256": "8242c9a9442ac0bf383152d7fd90ed017854ff333ac818b49da4271f5e19b4fd"
+    },
+    {
+      "id": "handbook",
+      "path": "dataset/evaluation/corpus/synthetic_handbook_zh.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_handbook_zh.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-handbook.md",
+      "sha256": "c08b2a75e579d5fabdd0dc0d25c022dea8fb8eee055b5c722d277304b2bb8637"
+    },
+    {
+      "id": "policy_v1",
+      "path": "dataset/evaluation/corpus/synthetic_policy_v1.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_policy_v1.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-policy-v1.md",
+      "sha256": "66694442a85fedc3c90f9a1645ca8ebe29bae1865757fa6bccf4ed9c39240de3"
+    },
+    {
+      "id": "policy_v2",
+      "path": "dataset/evaluation/corpus/synthetic_policy_v2.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_policy_v2.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-policy-v2.md",
+      "sha256": "1d55904bbf20b477839505d2064ba8c0627922c452d0176371895565f2c8c8c6"
+    },
+    {
+      "id": "decoy",
+      "path": "dataset/evaluation/corpus/synthetic_decoy.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_decoy.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-decoy.md",
+      "sha256": "6257afd4e6b0ec30ce74c9fda221641230f0910fd0a7cbebd9e8b669ffa6222e"
+    },
+    {
+      "id": "research_en",
+      "path": "dataset/evaluation/corpus/synthetic_research_en.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_research_en.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-research.md",
+      "sha256": "73842716ff893f889f91ca035bee1a802f730648678d2d8f06f51e31f0f898ee"
+    },
+    {
+      "id": "table_notes",
+      "path": "dataset/evaluation/corpus/synthetic_table_notes.md",
+      "origin_path": "dataset/evaluation/corpus/synthetic_table_notes.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-table-notes.md",
+      "sha256": "9dc8a98281c2039f7803741d96b2422eeacb219dd36ddab77854662fb3eccece"
+    },
+    {
+      "id": "absence_register",
+      "path": "dataset/evaluation/corpus/absence_register.md",
+      "origin_path": "dataset/evaluation/corpus/absence_register.md",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "absence-register.md",
+      "sha256": "a8d13ad9c549c4da7801505fce41eaf506a5a0e1de647b4e55540e4fce3004d2"
+    },
+    {
+      "id": "table_docx",
+      "path": "dataset/evaluation/corpus/synthetic_department_report.docx",
+      "origin_path": "dataset/evaluation/corpus/synthetic_department_report.docx",
+      "snapshot_version": "knownest-python-runtime-p0p1-v1",
+      "upload_name": "synthetic-department-report.docx",
+      "sha256": "e3948c74fe02613dd53e16726180a8f3bdb214945f9a399e149fdbb96dc7f33e"
+    }
+  ],
+  "cases_sha256": "0025878e1007768d5c839738f98e8cede439ba82fa859b0f93f7b2effcf301db",
+  "scenarios_sha256": "b7b1aa1de1355e1b75c546434c3991f5d8a49aa9ebd410b17872e28d955d98d6",
+  "rubric_path": "dataset/evaluation/rubric.md",
+  "annotation_review_status": "human_review_pending_before_acceptance",
+  "baseline_and_target": "Runtime baseline observations are reported separately from the P0/P1 target contract; unsupported target capabilities are not scored as baseline passes."
+}

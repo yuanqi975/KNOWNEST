@@ -9,7 +9,8 @@ from app.core.config import get_settings
 from app.core.db import get_db
 from app.models.models import User, Workspace
 
-_PASSWORD_HASH_PREFIX = "weknora-sha256$"
+_PASSWORD_HASH_PREFIX = "knownest-sha256$"
+_LEGACY_PASSWORD_HASH_PREFIX = "weknora-sha256$"
 
 
 def _bcrypt_secret(value: str) -> str:
@@ -24,11 +25,13 @@ def hash_password(value: str) -> str:
 
 
 def verify_password(value: str, hashed: str) -> bool:
-    if hashed.startswith(_PASSWORD_HASH_PREFIX):
-        return bcrypt.checkpw(
-            _bcrypt_secret(value).encode("ascii"),
-            hashed[len(_PASSWORD_HASH_PREFIX):].encode("ascii"),
-        )
+    # Existing database rows keep their original format until a password is reset.
+    for prefix in (_PASSWORD_HASH_PREFIX, _LEGACY_PASSWORD_HASH_PREFIX):
+        if hashed.startswith(prefix):
+            return bcrypt.checkpw(
+                _bcrypt_secret(value).encode("ascii"),
+                hashed[len(prefix):].encode("ascii"),
+            )
     # Keep accounts created before the pre-hash change usable. Their bcrypt
     # hashes retain the historical 72-byte limitation.
     return bcrypt.checkpw(value.encode("utf-8"), hashed.encode("ascii"))

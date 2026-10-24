@@ -151,8 +151,8 @@ def migrate(source: Engine, target: Engine, dry_run: bool = False) -> dict[str, 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=Path("weknora-local.db"))
-    parser.add_argument("--target", default="postgresql+psycopg://weknora:weknora@localhost:5432/weknora")
+    parser.add_argument("--source", type=Path, default=Path("knownest-local.db"))
+    parser.add_argument("--target", default="postgresql+psycopg://knownest:knownest@localhost:5432/knownest")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     if not args.source.exists():

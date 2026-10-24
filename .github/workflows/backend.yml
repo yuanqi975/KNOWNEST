@@ -1,0 +1,32 @@
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", "dataset/evaluation/**", "docker-compose.python.yml", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["backend/**", "dataset/evaluation/**", "docker-compose.python.yml", ".github/workflows/backend.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite://
+      MILVUS_URI: http://127.0.0.1:1
+      PYTHONPATH: backend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -r backend/requirements.txt
+      - run: python -m app.evaluation_cli --validate-only
+      - run: python -m pytest backend/tests -q
+      - run: docker compose -f docker-compose.python.yml config --quiet
+      - run: docker build -t knownest-api:ci backend

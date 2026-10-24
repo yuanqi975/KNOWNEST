@@ -25,7 +25,7 @@ CANDIDATE_COUNT = 24
 
 
 def _evaluation_trace_enabled() -> bool:
-    return os.getenv("WEKNORA_EVAL_ENV") == "isolated"
+    return os.getenv("KNOWNEST_EVAL_ENV") == "isolated"
 
 
 @dataclass(frozen=True)

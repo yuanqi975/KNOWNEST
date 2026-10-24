@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-The WeKnora team takes security vulnerabilities seriously.  
+The KNOWNEST team takes security vulnerabilities seriously.
 We appreciate your efforts to responsibly disclose any security issues you discover.
 
 ⚠️ **Please do NOT report security vulnerabilities through public GitHub issues.**
@@ -43,4 +43,4 @@ We aim to:
 
 We kindly ask reporters to follow responsible disclosure practices and allow us reasonable time to address the issue before any public disclosure.
 
-Thank you for helping keep **WeKnora** and its users secure.
+Thank you for helping keep **KNOWNEST** and its users secure.

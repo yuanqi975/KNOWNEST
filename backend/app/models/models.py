@@ -5,7 +5,8 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, Index, text
+from sqlalchemy.types import UserDefinedType
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -149,15 +150,22 @@ class ChatSession(Base):
     model_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     mode: Mapped[str] = mapped_column(String(16))
     title: Mapped[str] = mapped_column(String(255), default="New conversation")
+    next_sequence: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    context_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
+    __table_args__ = (UniqueConstraint("session_id", "sequence", name="uq_message_sequence"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     session_id: Mapped[str] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"), index=True)
     role: Mapped[str] = mapped_column(String(20))
     content: Mapped[str] = mapped_column(Text)
+    sequence: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    run_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(20), default="completed", server_default="completed")
+    token_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     provider: Mapped[str | None] = mapped_column(String(30), nullable=True)
     latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -195,6 +203,15 @@ class Memory(Base):
     status: Mapped[MemoryStatus] = mapped_column(Enum(MemoryStatus), default=MemoryStatus.pending)
     confidence: Mapped[float] = mapped_column(Float, default=0.5)
     source_message_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    knowledge_base_id: Mapped[str | None] = mapped_column(ForeignKey("knowledge_bases.id", ondelete="CASCADE"), nullable=True, index=True)
+    source_type: Mapped[str] = mapped_column(String(20), default="manual", server_default="manual")
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    superseded_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    replaces_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    conflict_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    subject: Mapped[str | None] = mapped_column(String(160), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -208,6 +225,8 @@ class ModelProfile(Base):
     model_name: Mapped[str] = mapped_column(String(160))
     api_key_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
     supports_tools: Mapped[bool] = mapped_column(Boolean, default=True)
+    context_window_tokens: Mapped[int] = mapped_column(Integer, default=32768, server_default="32768")
+    max_output_tokens: Mapped[int] = mapped_column(Integer, default=4096, server_default="4096")
     supports_reasoning: Mapped[bool] = mapped_column(Boolean, default=False)
     is_default_rag: Mapped[bool] = mapped_column(Boolean, default=False)
     is_default_agent: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -267,3 +286,105 @@ class RequestLog(Base):
     latency_ms: Mapped[int] = mapped_column(Integer)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ChatRun(Base):
+    __tablename__ = "chat_runs"
+    __table_args__ = (
+        UniqueConstraint("session_id", "client_request_id", name="uq_run_request"),
+        Index("uq_running_session", "session_id", unique=True,
+              postgresql_where=text("status = 'running'"), sqlite_where=text("status = 'running'")),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    session_id: Mapped[str] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"), index=True)
+    client_request_id: Mapped[str] = mapped_column(String(100))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    mode: Mapped[str] = mapped_column(String(16))
+    model_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="running")
+    memory_epoch: Mapped[int] = mapped_column(Integer, default=1)
+    lease_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False)
+    user_message_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    assistant_message_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    context_stats: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    tool_results: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SessionSummary(Base):
+    __tablename__ = "session_summaries"
+    session_id: Mapped[str] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    covered_sequence: Mapped[int] = mapped_column(Integer)
+    content: Mapped[dict] = mapped_column(JSON)
+    model: Mapped[str] = mapped_column(String(160))
+    prompt_version: Mapped[str] = mapped_column(String(20), default="summary-v1")
+
+
+class MemoryNamespace(Base):
+    __tablename__ = "memory_namespaces"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    epoch: Mapped[int] = mapped_column(Integer, default=1)
+    blocked_fingerprints: Mapped[list] = mapped_column(JSON, default=list)
+
+
+class MemorySource(Base):
+    __tablename__ = "memory_sources"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    memory_id: Mapped[str] = mapped_column(ForeignKey("memories.id", ondelete="CASCADE"), index=True)
+    message_id: Mapped[str] = mapped_column(ForeignKey("chat_messages.id", ondelete="CASCADE"), index=True)
+    excerpt: Mapped[str] = mapped_column(Text)
+
+
+class MemoryVector(UserDefinedType):
+    """Native pgvector in PostgreSQL; JSON text only for isolated SQLite tests."""
+    cache_ok = True
+
+    def get_col_spec(self, **kw):
+        return "VECTOR(4096)"
+
+
+from sqlalchemy.ext.compiler import compiles
+
+
+@compiles(MemoryVector, "sqlite")
+def _sqlite_memory_vector(type_, compiler, **kw):
+    return "TEXT"
+
+
+class MemoryEmbedding(Base):
+    __tablename__ = "memory_embeddings"
+    memory_id: Mapped[str] = mapped_column(ForeignKey("memories.id", ondelete="CASCADE"), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer)
+    model: Mapped[str] = mapped_column(String(160))
+    dimension: Mapped[int] = mapped_column(Integer, default=4096)
+    embedding: Mapped[Any] = mapped_column(MemoryVector())
+
+
+class MemoryEvent(Base):
+    __tablename__ = "memory_events"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    memory_id: Mapped[str] = mapped_column(ForeignKey("memories.id", ondelete="CASCADE"), index=True)
+    action: Mapped[str] = mapped_column(String(30))
+    version: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class BackgroundJob(Base):
+    __tablename__ = "background_jobs"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    session_id: Mapped[str | None] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=True, index=True)
+    memory_id: Mapped[str | None] = mapped_column(ForeignKey("memories.id", ondelete="CASCADE"), nullable=True, index=True)
+    dedupe_key: Mapped[str] = mapped_column(String(255), unique=True)
+    kind: Mapped[str] = mapped_column(String(30))
+    payload: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)

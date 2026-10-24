@@ -1,11 +1,34 @@
+name: knownest
+
+x-context-environment: &context-environment
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  REQUIRE_MILVUS: ${REQUIRE_MILVUS:-false}
+  CONTEXT_ENABLED: ${CONTEXT_ENABLED:-true}
+  SUMMARIES_ENABLED: ${SUMMARIES_ENABLED:-true}
+  MEMORY_RECALL_ENABLED: ${MEMORY_RECALL_ENABLED:-true}
+  MEMORY_EXTRACTION_ENABLED: ${MEMORY_EXTRACTION_ENABLED:-true}
+  CONTEXT_CACHE_ENABLED: ${CONTEXT_CACHE_ENABLED:-true}
+  CONTEXT_WINDOW_TOKENS: ${CONTEXT_WINDOW_TOKENS:-32768}
+  MAX_OUTPUT_TOKENS: ${MAX_OUTPUT_TOKENS:-4096}
+  MEMORY_EMBEDDING_TIMEOUT_SECONDS: ${MEMORY_EMBEDDING_TIMEOUT_SECONDS:-2}
+  RUN_LEASE_SECONDS: ${RUN_LEASE_SECONDS:-120}
+  OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+  OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+  DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+  SILICONFLOW_BASE_URL: ${SILICONFLOW_BASE_URL:-https://api.siliconflow.cn/v1}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-Qwen/Qwen3-VL-Embedding-8B}
+  EMBEDDING_DIMENSION: 4096
+
 services:
   python-api:
     build:
       context: ./backend
     environment:
-      DATABASE_URL: postgresql+psycopg://weknora:weknora@postgres:5432/weknora
+      <<: *context-environment
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-knownest}:${POSTGRES_PASSWORD:-knownest}@postgres:5432/${POSTGRES_DB:-knownest}}
       REDIS_URL: redis://redis:6379/0
       MILVUS_URI: http://milvus:19530
+      MILVUS_COLLECTION: ${MILVUS_COLLECTION:-knownest_vectors}
       STORAGE_PATH: /data/uploads
       SECRET_KEY: ${SECRET_KEY:-change-me}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -16,16 +39,24 @@ services:
       RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
       RERANK_ENABLED: ${RERANK_ENABLED:-true}
     ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     volumes: ["python-files:/data/uploads"]
     depends_on: [postgres, redis, milvus]
   python-worker:
     build:
       context: ./backend
-    command: celery -A app.workers.celery_app worker --loglevel=INFO
+    command: celery -A app.workers.celery_app worker --loglevel=INFO -Q ingestion --concurrency=2
     environment:
-      DATABASE_URL: postgresql+psycopg://weknora:weknora@postgres:5432/weknora
+      <<: *context-environment
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-knownest}:${POSTGRES_PASSWORD:-knownest}@postgres:5432/${POSTGRES_DB:-knownest}}
       REDIS_URL: redis://redis:6379/0
       MILVUS_URI: http://milvus:19530
+      MILVUS_COLLECTION: ${MILVUS_COLLECTION:-knownest_vectors}
       STORAGE_PATH: /data/uploads
       SECRET_KEY: ${SECRET_KEY:-change-me}
       SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
@@ -38,13 +69,50 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: weknora
-      POSTGRES_PASSWORD: weknora
-      POSTGRES_DB: weknora
+      POSTGRES_USER: ${POSTGRES_USER:-knownest}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-knownest}
+      POSTGRES_DB: ${POSTGRES_DB:-knownest}
     ports: ["5432:5432"]
     volumes: ["python-postgres:/var/lib/postgresql/data"]
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory-policy noeviction
+    volumes: ["python-redis:/data"]
+  python-context-worker: &context-worker
+    build:
+      context: ./backend
+    command: celery -A app.workers.celery_app worker --loglevel=INFO -Q context --concurrency=1
+    environment:
+      <<: *context-environment
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-knownest}:${POSTGRES_PASSWORD:-knownest}@postgres:5432/${POSTGRES_DB:-knownest}}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+      SILICONFLOW_BASE_URL: ${SILICONFLOW_BASE_URL:-https://api.siliconflow.cn/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-Qwen/Qwen3-VL-Embedding-8B}
+      EMBEDDING_DIMENSION: 4096
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      python-api:
+        condition: service_healthy
+  python-memory-worker:
+    <<: *context-worker
+    command: celery -A app.workers.celery_app worker --loglevel=INFO -Q memory --concurrency=2
+  python-scheduler:
+    build:
+      context: ./backend
+    command: celery -A app.workers.celery_app beat --loglevel=INFO --schedule=/tmp/knownest-beat
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      REDIS_URL: redis://redis:6379/0
+    depends_on: [redis]
   etcd:
     image: quay.io/coreos/etcd:v3.5.5
     command: etcd -advertise-client-urls=http://0.0.0.0:2379 -listen-client-urls=http://0.0.0.0:2379 --data-dir=/etcd
@@ -62,6 +130,7 @@ services:
     depends_on: [etcd, minio]
     ports: ["19530:19530"]
 volumes:
+  python-redis:
   python-files:
   python-postgres:
   python-etcd:

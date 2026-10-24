@@ -20,7 +20,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem('weknora_python_token')
+  const token = localStorage.getItem('knownest_python_token')
   if (to.path.startsWith('/runtime') && !token) return '/login'
   if (to.path === '/login' && token) return '/runtime/rag'
   return true

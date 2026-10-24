@@ -7,16 +7,26 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    app_name: str = "WeKnora"
+    app_name: str = "KNOWNEST"
     environment: str = "development"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     api_prefix: str = "/api/v1"
     secret_key: str = "change-me-in-production"
     access_token_minutes: int = 60
-    database_url: str = "postgresql+psycopg://weknora:weknora@localhost:5432/weknora"
+    database_url: str = "postgresql+psycopg://knownest:knownest@localhost:5432/knownest"
     redis_url: str = "redis://localhost:6379/0"
+    context_enabled: bool = True
+    summaries_enabled: bool = True
+    memory_recall_enabled: bool = True
+    memory_extraction_enabled: bool = True
+    context_cache_enabled: bool = True
+    context_window_tokens: int = 32768
+    max_output_tokens: int = 4096
+    memory_embedding_timeout_seconds: float = 2.0
+    run_lease_seconds: int = 120
+    background_model_timeout_seconds: int = 60
     milvus_uri: str = "http://localhost:19530"
-    milvus_collection: str = "weknora_vectors"
+    milvus_collection: str = "knownest_vectors"
     require_milvus: bool = False
     storage_path: str = "./data/uploads"
     openai_base_url: str = "https://api.openai.com/v1"
@@ -42,11 +52,10 @@ class Settings(BaseSettings):
     mcp_allow_private_hosts: bool = False
     mcp_allow_stdio: bool = False
     max_upload_mb: int = 50
-    # The documented CLI is launched from ``backend/``, while the project
-    # keeps its local secrets in the repository-root ``.env``. Support both
-    # locations; real process environment variables still take precedence.
+    # Load the repository configuration and an optional backend override from
+    # either supported working directory. Process variables take precedence.
     model_config = SettingsConfigDict(
-        env_file=(PROJECT_ROOT / ".env", ".env"),
+        env_file=(PROJECT_ROOT / ".env", PROJECT_ROOT / "backend" / ".env"),
         extra="ignore",
         case_sensitive=False,
     )
@@ -56,6 +65,8 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     def validate_runtime_configuration(self) -> None:
+        if self.max_output_tokens < 1 or self.context_window_tokens - self.max_output_tokens - max(1024, self.context_window_tokens // 8) < 1024:
+            raise RuntimeError("Model token limits must leave at least 1024 input tokens")
         if self.environment.lower() in {"production", "staging"}:
             if self.secret_key == "change-me-in-production" or len(self.secret_key) < 32:
                 raise RuntimeError("SECRET_KEY must be explicitly set to a random value of at least 32 characters")

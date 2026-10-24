@@ -115,28 +115,28 @@ def test_diagnostic_run_is_explicitly_not_acceptance():
 def test_real_run_requires_explicit_isolated_marker_and_loopback(monkeypatch):
     settings = SimpleNamespace(
         environment="development",
-        database_url="postgresql+psycopg://local:local@localhost:5432/weknora_eval",
+        database_url="postgresql+psycopg://local:local@localhost:5432/knownest_eval",
         milvus_collection="vectors_eval",
         storage_path="./data/eval-uploads",
         milvus_uri="http://localhost:19530",
         redis_url="redis://localhost:6379/15",
     )
-    monkeypatch.delenv("WEKNORA_EVAL_ENV", raising=False)
-    monkeypatch.setenv("WEKNORA_EVAL_TOKEN", "dedicated-test-token")
-    with pytest.raises(EvaluationRunError, match="WEKNORA_EVAL_ENV"):
+    monkeypatch.delenv("KNOWNEST_EVAL_ENV", raising=False)
+    monkeypatch.setenv("KNOWNEST_EVAL_TOKEN", "dedicated-test-token")
+    with pytest.raises(EvaluationRunError, match="KNOWNEST_EVAL_ENV"):
         _ensure_isolated_local(settings, "http://127.0.0.1:8000")
-    monkeypatch.setenv("WEKNORA_EVAL_ENV", "isolated")
+    monkeypatch.setenv("KNOWNEST_EVAL_ENV", "isolated")
     assert _ensure_isolated_local(settings, "http://127.0.0.1:8000") == ""
     with pytest.raises(EvaluationRunError, match="loopback"):
         _ensure_isolated_local(settings, "https://example.com")
 
 
 def test_real_run_refuses_production_or_non_eval_database(monkeypatch):
-    monkeypatch.setenv("WEKNORA_EVAL_ENV", "isolated")
-    monkeypatch.setenv("WEKNORA_EVAL_TOKEN", "dedicated-test-token")
+    monkeypatch.setenv("KNOWNEST_EVAL_ENV", "isolated")
+    monkeypatch.setenv("KNOWNEST_EVAL_TOKEN", "dedicated-test-token")
     production = SimpleNamespace(
         environment="production",
-        database_url="postgresql+psycopg://local:local@localhost:5432/weknora_eval",
+        database_url="postgresql+psycopg://local:local@localhost:5432/knownest_eval",
         milvus_collection="vectors_eval",
         storage_path="./data/eval-uploads",
         milvus_uri="http://localhost:19530",
@@ -144,7 +144,7 @@ def test_real_run_refuses_production_or_non_eval_database(monkeypatch):
     )
     with pytest.raises(EvaluationRunError, match="production"):
         _ensure_isolated_local(production, "http://127.0.0.1:8000")
-    non_eval_db = SimpleNamespace(**(vars(production) | {"environment": "development", "database_url": "sqlite:///./weknora.db"}))
+    non_eval_db = SimpleNamespace(**(vars(production) | {"environment": "development", "database_url": "sqlite:///./knownest.db"}))
     with pytest.raises(EvaluationRunError, match="database"):
         _ensure_isolated_local(non_eval_db, "http://127.0.0.1:8000")
 

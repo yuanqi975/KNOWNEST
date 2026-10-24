@@ -29,9 +29,9 @@ async def run(args: argparse.Namespace) -> dict:
     cases = [case for case in all_cases if case["id"] in set(wanted)]
     if not cases:
         raise EvaluationRunError("No cases selected.")
-    token = os.environ.get("WEKNORA_EVAL_TOKEN")
+    token = os.environ.get("KNOWNEST_EVAL_TOKEN")
     if not token:
-        raise EvaluationRunError("WEKNORA_EVAL_TOKEN is required.")
+        raise EvaluationRunError("KNOWNEST_EVAL_TOKEN is required.")
     base = args.base_url.rstrip("/")
     api_root = base + (api_path or settings.api_prefix)
     headers = {"Authorization": f"Bearer {token}"}

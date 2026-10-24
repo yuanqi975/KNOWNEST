@@ -1,130 +1,32 @@
-name: 🐛 Bug Report
-description: Report a bug or issue
+name: Bug report
+description: Report a KNOWNEST problem
 title: "[Bug]: "
-labels: ["bug", "needs-triage"]
+labels: [bug]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for reporting a bug! Please fill in the information below to help us locate and fix the issue quickly.
-
   - type: dropdown
     id: component
     attributes:
-      label: Affected Component
-      description: Select the component where the issue occurs
-      options:
-        - Frontend UI
-        - Backend Service & API
-        - Document Reader Service
-        - Vector Database
-        - Model Service
-        - Other
+      label: Component
+      options: [Vue frontend, Python API, Indexing worker, Database or vector store]
     validations:
       required: true
-
   - type: textarea
-    id: description
+    id: reproduction
     attributes:
-      label: Bug Description
-      description: A clear and concise description of the issue
-      placeholder: "Describe what the bug looks like..."
+      label: Steps to reproduce
+      description: Include expected and actual behavior.
     validations:
       required: true
-
   - type: textarea
-    id: steps
+    id: environment
     attributes:
-      label: Steps to Reproduce
-      description: Minimal steps that reliably reproduce the problem
-      placeholder: |
-        1. Go to '...'
-        2. Click on '...'
-        3. Send request '...'
-        4. See error
+      label: Environment
+      description: Include the commit, operating system and local or Compose setup.
     validations:
       required: true
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected Behavior
-      description: Describe what you expected to happen
-      placeholder: "What should have happened..."
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual Behavior
-      description: Describe what actually happened (error messages, screenshots, etc.)
-      placeholder: "What actually happened..."
-    validations:
-      required: true
-
-  - type: input
-    id: version
-    attributes:
-      label: WeKnora Version
-      description: |
-        Please provide the concrete version number you are running, **not** `latest`, `main` or `master`.
-        You can find it on the **Settings → System Info** page (both "App Version" and "UI Version" — if they differ, please report both).
-        If you built from source, include the commit SHA instead.
-      placeholder: "e.g., App Version: v0.6.0, UI Version: v0.6.0 (or commit abc1234)"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: deployment
-    attributes:
-      label: Deployment Method
-      description: How are you running WeKnora?
-      options:
-        - Docker Compose
-        - Build from source
-        - Lite (single binary)
-        - Desktop app
-        - Kubernetes (Helm)
-        - Other
-    validations:
-      required: true
-
-  - type: input
-    id: os
-    attributes:
-      label: Operating System
-      description: The operating system you are using
-      placeholder: "e.g., macOS 13.0, Ubuntu 20.04, Windows 11"
-    validations:
-      required: true
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 📋 Log Collection Guide
-
-        Please collect logs and paste them into the field below. Pick the command matching your deployment:
-
-        - Docker Compose:
-          ```bash
-          docker compose logs -f --tail=1000 app docreader postgres
-          ```
-        - Lite / Desktop / build from source: include the console output or log files (e.g., `logs/*.log`).
-
   - type: textarea
     id: logs
     attributes:
-      label: Relevant Logs
-      description: Paste relevant logs or error messages here
-      placeholder: "Paste logs or error messages..."
+      label: Relevant logs
+      description: Remove credentials and personal data before sharing logs.
       render: shell
-
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Confirmation
-      description: Please confirm the following
-      options:
-        - label: I have searched existing issues and confirmed this is a new one
-          required: true

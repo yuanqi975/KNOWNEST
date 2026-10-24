@@ -1,4 +1,4 @@
-"""Safe local runner for the checked-in WeKnora Runtime evaluation set."""
+"""Safe local runner for the checked-in KNOWNEST evaluation set."""
 
 from __future__ import annotations
 
@@ -101,10 +101,10 @@ def _code_artifact_hashes() -> dict[str, str]:
 
 
 def _ensure_isolated_local(settings: Any, base_url: str) -> str:
-    if os.environ.get("WEKNORA_EVAL_ENV", "").strip().lower() != "isolated":
-        raise EvaluationRunError("Set WEKNORA_EVAL_ENV=isolated only for a dedicated evaluation deployment.")
-    if not os.environ.get("WEKNORA_EVAL_TOKEN", "").strip():
-        raise EvaluationRunError("WEKNORA_EVAL_TOKEN must contain a dedicated user token for the isolated evaluation deployment.")
+    if os.environ.get("KNOWNEST_EVAL_ENV", "").strip().lower() != "isolated":
+        raise EvaluationRunError("Set KNOWNEST_EVAL_ENV=isolated only for a dedicated evaluation deployment.")
+    if not os.environ.get("KNOWNEST_EVAL_TOKEN", "").strip():
+        raise EvaluationRunError("KNOWNEST_EVAL_TOKEN must contain a dedicated user token for the isolated evaluation deployment.")
     if settings.environment.lower() not in {"development", "test", "local"}:
         raise EvaluationRunError("Evaluation refuses production or staging configuration.")
 
@@ -171,7 +171,7 @@ async def _preflight(settings: Any) -> dict[str, Any]:
 
     started = time.perf_counter()
     try:
-        vectors = await EmbeddingProvider().embed(["WeKnora evaluation readiness probe"])
+        vectors = await EmbeddingProvider().embed(["KNOWNEST evaluation readiness probe"])
         if len(vectors) != 1 or len(vectors[0]) != settings.embedding_dimension:
             raise EvaluationRunError("Embedding readiness probe returned an invalid vector dimension.")
         ranked = await RerankProvider().rerank("readiness probe", ["evaluation probe document"], top_n=1)
@@ -385,7 +385,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
         smoke = metrics.get("metric_smoke", {})
         dataset = report.get("dataset", {})
         lines = [
-            f"# WeKnora diagnostic run {report['run_id']}",
+            f"# KNOWNEST diagnostic run {report['run_id']}",
             "",
             "- Result type: `offline_diagnostic_not_for_acceptance`",
             "- Acceptance status: `not_scored`",
@@ -408,7 +408,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
 
     targets = report.get("acceptance_targets", {})
     lines = [
-        f"# WeKnora evaluation run {report['run_id']}",
+        f"# KNOWNEST evaluation run {report['run_id']}",
         "",
         f"- Result type: `{report['result_type']}`",
         f"- Scope: `{'partial run, ' + str(report.get('evaluation_scope', {}).get('cases_run')) + '/' + str(report.get('evaluation_scope', {}).get('full_dataset_case_count')) + ' QA cases' if report.get('evaluation_scope', {}).get('partial') else 'full dataset'}`",
@@ -728,7 +728,7 @@ async def _run_real(args: argparse.Namespace) -> dict[str, Any]:
         raise EvaluationRunError("API URL path must be empty or match API_PREFIX for the isolated local configuration.")
     api_root = f"{base_url}{api_base_path or settings.api_prefix}"
     preflight = await _preflight(settings)
-    token = os.environ["WEKNORA_EVAL_TOKEN"]
+    token = os.environ["KNOWNEST_EVAL_TOKEN"]
     headers = {"Authorization": f"Bearer {token}"}
     run_id = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid4().hex[:8]
     started_at = datetime.now(timezone.utc).isoformat()
@@ -920,7 +920,7 @@ def _compare_with_previous(report: dict[str, Any], baseline_path: Path) -> dict[
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Run the WeKnora P0/P1 golden evaluation against a dedicated local Runtime.")
+    parser = argparse.ArgumentParser(description="Run the KNOWNEST P0/P1 golden evaluation against a dedicated local Runtime.")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--validate-only", action="store_true", help="Validate corpus, manifest, hashes, evidence and scenario definitions without network calls.")
     modes.add_argument("--diagnostic-mocks", action="store_true", help="Run deterministic metric smoke only; output is never an acceptance result.")

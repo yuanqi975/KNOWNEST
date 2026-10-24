@@ -14,6 +14,8 @@ class ModelChoice:
     api_key: str
     model: str
     supports_tools: bool = True
+    context_window_tokens: int = 32768
+    max_output_tokens: int = 4096
 
 
 def configured_choice(provider: str, model: str | None = None) -> ModelChoice:
@@ -40,7 +42,8 @@ class ChatProvider:
             yield {"type": "complete", "content": answer}
             return
         headers = {"Authorization": f"Bearer {self.choice.api_key}", "Content-Type": "application/json"}
-        body: dict[str, Any] = {"model": self.choice.model, "messages": messages, "stream": True}
+        body: dict[str, Any] = {"model": self.choice.model, "messages": messages, "stream": True,
+                                "max_tokens": self.choice.max_output_tokens}
         if tools:
             body["tools"] = tools
             body["tool_choice"] = "auto"

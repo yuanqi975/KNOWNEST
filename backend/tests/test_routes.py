@@ -11,7 +11,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.db import Base, get_db
 from app.main import app
-from app.models.models import ChatMessage, Citation, Document, DocumentChunk
+from app.models.models import ChatMessage, ChatSession, Citation, Document, DocumentChunk, MessageExecution, User
 from app.api import routes
 
 
@@ -125,6 +125,66 @@ def test_setup_status_and_citation_authorization(client, account):
     }
 
 
+@pytest.mark.parametrize("mode", ["conversation", "rag", "agent"])
+def test_conversation_rename_and_delete(client, account, test_session_factory, mode):
+    path = "/conversations" if mode == "conversation" else f"/{mode}/sessions"
+    created = client.post(f"/api/v1{path}", headers=account["headers"], json={
+        "workspace_id": account["workspace_id"], "knowledge_base_id": account["kb_id"],
+    })
+    assert created.status_code == 200
+    conversation_id = created.json()["id"]
+    endpoint = f"/api/v1/conversations/{conversation_id}"
+    for invalid in ["", "   ", "a" * 256]:
+        assert client.patch(endpoint, headers=account["headers"], json={"title": invalid}).status_code == 422
+    renamed = client.patch(endpoint, headers=account["headers"], json={"title": "  项目研究记录  "})
+    assert renamed.status_code == 200
+    assert renamed.json()["title"] == "项目研究记录"
+    assert client.get(endpoint, headers=account["headers"]).json()["title"] == "项目研究记录"
+    listed = client.get(f"/api/v1/conversations?workspace_id={account['workspace_id']}", headers=account["headers"]).json()
+    assert next(item for item in listed if item["id"] == conversation_id)["title"] == "项目研究记录"
+
+    with test_session_factory() as db:
+        message = ChatMessage(session_id=conversation_id, role="assistant", content="An answer.")
+        db.add(message)
+        db.flush()
+        message_id = message.id
+        document_id = db.get(DocumentChunk, account["chunk_id"]).document_id
+        citation = Citation(message_id=message_id, citation_index=1, document_id=document_id, chunk_id=account["chunk_id"], quoted_text="A source.")
+        db.add_all([citation, MessageExecution(message_id=message_id, mode="rag")])
+        db.commit()
+        citation_id = citation.id
+
+    assert client.delete(endpoint, headers=account["headers"]).status_code == 204
+    assert client.get(endpoint, headers=account["headers"]).status_code == 404
+    assert client.delete(endpoint, headers=account["headers"]).status_code == 404
+    listed = client.get(f"/api/v1/conversations?workspace_id={account['workspace_id']}", headers=account["headers"]).json()
+    assert all(item["id"] != conversation_id for item in listed)
+    with test_session_factory() as db:
+        assert db.get(ChatSession, conversation_id) is None
+        assert db.get(ChatMessage, message_id) is None
+        assert db.get(Citation, citation_id) is None
+        assert db.get(MessageExecution, message_id) is None
+        assert db.get(Document, document_id) is not None
+        assert db.get(DocumentChunk, account["chunk_id"]) is not None
+
+
+def test_conversation_mutations_require_ownership(client, account, test_session_factory):
+    with test_session_factory() as db:
+        other = User(username="other-conversation-owner", password_hash="unused")
+        db.add(other)
+        db.flush()
+        conversation = ChatSession(user_id=other.id, workspace_id=account["workspace_id"], mode="conversation", title="Private conversation")
+        db.add(conversation)
+        db.commit()
+        endpoint = f"/api/v1/conversations/{conversation.id}"
+    assert client.patch(endpoint, json={"title": "Changed"}).status_code == 401
+    assert client.delete(endpoint).status_code == 401
+    assert client.patch(endpoint, headers=account["headers"], json={"title": "Changed"}).status_code == 404
+    assert client.delete(endpoint, headers=account["headers"]).status_code == 404
+    with test_session_factory() as db:
+        assert db.get(ChatSession, conversation.id).title == "Private conversation"
+
+
 def test_chunking_config_can_be_read_and_updated(client, account):
     response = client.get(f"/api/v1/knowledge-bases/{account['kb_id']}/chunking-config", headers=account["headers"])
     assert response.status_code == 200
@@ -210,4 +270,55 @@ def test_rag_stream_emits_rich_citations_and_persists_them(client, account, test
         assert stored.quoted_text == "The retention policy is seven years."
     finally:
         db.close()
+
+
+
+
+def test_memory_api_scope_versions_and_context(client, account, monkeypatch):
+    from app.core.config import get_settings
+    monkeypatch.setattr(get_settings(), "context_cache_enabled", False)
+    base = f"/api/v1/workspaces/{account['workspace_id']}/memories"
+    payload = {"workspace_id": account["workspace_id"], "type": "preference", "content": "回答请简洁", "knowledge_base_id": account["kb_id"]}
+    created = client.post(base, headers=account["headers"], json=payload)
+    assert created.status_code == 200
+    item = created.json()
+    assert item["status"] == "active" and item["version"] == 1
+    updated = client.patch(f"/api/v1/memories/{item['id']}", headers=account["headers"], json={"content": "回答请使用中文", "version": 1})
+    assert updated.status_code == 200 and updated.json()["version"] == 2
+    stale = client.patch(f"/api/v1/memories/{item['id']}", headers=account["headers"], json={"content": "stale", "version": 1})
+    assert stale.status_code == 409
+    invalid = client.post(base, headers=account["headers"], json={**payload, "workspace_id": "wrong"})
+    assert invalid.status_code == 400
+    assert client.delete(f"/api/v1/memories/{item['id']}", headers=account["headers"]).status_code == 204
+
+
+def test_stream_latest_question_idempotent_replay_and_explicit_memory(client, account, test_session_factory, monkeypatch):
+    from app.core.config import get_settings
+    monkeypatch.setattr(get_settings(), "context_cache_enabled", False)
+    called = []
+    class Provider:
+        choice = SimpleNamespace(provider="fake")
+        async def stream(self, messages):
+            called.append(messages)
+            yield {"type": "token", "content": "answer"}
+            yield {"type": "complete"}
+    monkeypatch.setattr(routes, "ChatProvider", lambda _: Provider())
+    session = client.post("/api/v1/conversations", headers=account["headers"], json={"workspace_id": account["workspace_id"]}).json()
+    with test_session_factory() as db:
+        for i in range(15):
+            db.add(ChatMessage(session_id=session["id"], role="user", content=f"u{i}", sequence=i*2+1))
+            db.add(ChatMessage(session_id=session["id"], role="assistant", content=f"a{i}", sequence=i*2+2))
+        db.get(ChatSession, session["id"]).next_sequence = 31
+        db.commit()
+    payload = {"content": "请记住：回答请用中文", "mode": "rag", "client_request_id": "replay-test"}
+    first = client.post(f"/api/v1/conversations/{session['id']}/messages", headers=account["headers"], json=payload)
+    assert first.status_code == 200 and '"type": "memory_saved"' in first.text
+    assert '"type": "message_complete"' in first.text
+    assert called[0][-1]["content"] == payload["content"]
+    assert any(m["content"] == "a14" for m in called[0])
+    replay = client.post(f"/api/v1/conversations/{session['id']}/messages", headers=account["headers"], json=payload)
+    assert '"replayed": true' in replay.text and len(called) == 1
+    context = client.get(f"/api/v1/conversations/{session['id']}/context", headers=account["headers"])
+    assert context.status_code == 200 and context.json()["status"] == "completed"
+    assert context.json()["memories"]
 

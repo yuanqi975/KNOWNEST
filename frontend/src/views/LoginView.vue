@@ -82,7 +82,7 @@ async function submit() {
     const response = isSetup.value
       ? await runtimeAuth.setup(username.value.trim(), password.value)
       : await runtimeAuth.login(username.value.trim(), password.value)
-    localStorage.setItem('weknora_python_token', response.token)
+    localStorage.setItem('knownest_python_token', response.token)
     await router.replace('/runtime/rag')
   } catch (error: any) {
     const message = String(error?.message || '')
@@ -141,9 +141,9 @@ onMounted(refreshStatus)
 
     <aside class="status-rail" aria-labelledby="status-title">
       <h2 id="status-title">本地运行状态</h2><p class="status-lead">提交前会检查服务和账号初始化状态。</p><div class="rail-rule" aria-hidden="true"></div>
-      <section class="status-block" aria-live="polite"><div class="status-heading"><h3>服务</h3><span class="state-dot" :class="serviceState"></span></div><strong>{{ serviceLabel }}</strong><p v-if="serviceState === 'ready'">可以提交登录请求。</p><p v-else-if="serviceState === 'offline'">请确认后端已在本地运行。</p><p v-else>正在连接后端服务。</p><code>GET /ready</code></section>
-      <section class="status-block" aria-live="polite"><div class="status-heading"><h3>账号</h3><span class="state-dot" :class="accountState"></span></div><strong>{{ accountLabel }}</strong><p v-if="setupKnown === true">已有账号时，首次初始化入口会保持关闭。</p><p v-else-if="setupKnown === false">这是这个运行环境的第一次使用。</p><p v-else>等待后端返回账号状态。</p><code>GET /auth/setup-status</code></section>
-      <section class="status-block status-note"><h3>关于首次使用</h3><p>没有账号时，创建的第一个用户会同时获得默认工作区。登录页不会显示当前服务未实现的找回密码或第三方登录入口。</p><code>POST /auth/setup<br />POST /auth/login</code></section>
+      <section class="status-block" aria-live="polite"><div class="status-heading"><h3>服务</h3><span class="state-dot" :class="serviceState"></span></div><strong>{{ serviceLabel }}</strong><p v-if="serviceState === 'ready'">可以提交登录请求。</p><p v-else-if="serviceState === 'offline'">请确认后端已在本地运行。</p><p v-else>正在连接后端服务。</p></section>
+      <section class="status-block" aria-live="polite"><div class="status-heading"><h3>账号</h3><span class="state-dot" :class="accountState"></span></div><strong>{{ accountLabel }}</strong><p v-if="setupKnown === true">已有账号时，首次初始化入口会保持关闭。</p><p v-else-if="setupKnown === false">这是这个运行环境的第一次使用。</p><p v-else>等待后端返回账号状态。</p></section>
+      <section class="status-block status-note"><h3>关于首次使用</h3><p>没有账号时，创建的第一个用户会同时获得默认工作区。登录页不会显示当前服务未实现的找回密码或第三方登录入口。</p></section>
       <div v-if="statusError" class="status-error" role="status"><p>{{ statusError }}</p><button type="button" @click="refreshStatus">重新检查</button></div><button v-else-if="serviceState === 'offline'" class="status-retry" type="button" @click="refreshStatus">重新检查服务</button>
     </aside>
   </main>
@@ -211,7 +211,6 @@ onMounted(refreshStatus)
 .status-block h3 { margin: 0 0 10px; color: #53685b; font-size: 12px; letter-spacing: .08em; }
 .status-block strong { display: block; color: #2e483a; font: 600 17px/1.4 Georgia, "Noto Serif SC", serif; }
 .status-block p { margin: 7px 0 0; font-size: 12px; line-height: 1.65; }
-.status-block code { display: block; margin-top: 11px; color: #8b806d; font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
 .state-dot { width: 9px; height: 9px; border-radius: 50%; background: #a7b0a8; }
 .state-dot.ready { background: #5d9778; }
 .state-dot.offline { background: #b36551; }

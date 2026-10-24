@@ -9,7 +9,7 @@ from pathlib import Path
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.db import get_db
@@ -56,7 +56,7 @@ def delete_workspace_vectors(db: Session, workspace_id: str) -> None:
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "weknora-python"}
+    return {"status": "ok", "service": "knownest-python"}
 
 
 @router.get("/ready")
@@ -397,7 +397,14 @@ async def search(kb_id: str, payload: SearchRequest, request: Request, db: Sessi
 def create_session(mode: str, payload: SessionCreate, request: Request, db: Session = Depends(get_db)):
     if mode not in {"rag", "agent"}: raise HTTPException(400, "Invalid mode")
     current = user(request, db); owned_workspace(db, payload.workspace_id, current)
-    if payload.knowledge_base_id: owned_kb(db, payload.knowledge_base_id, current)
+    if payload.knowledge_base_id:
+        kb = owned_kb(db, payload.knowledge_base_id, current)
+        if kb.workspace_id != payload.workspace_id:
+            raise HTTPException(400, "Knowledge base workspace mismatch")
+    if payload.model_id:
+        model = db.get(ModelProfile, payload.model_id)
+        if not model or model.workspace_id != payload.workspace_id:
+            raise HTTPException(404, "Model not found in this workspace")
     item = ChatSession(user_id=current.id, workspace_id=payload.workspace_id, knowledge_base_id=payload.knowledge_base_id, model_id=payload.model_id, mode=mode)
     db.add(item); db.commit(); db.refresh(item)
     return {"id": item.id, "mode": item.mode, "workspace_id": item.workspace_id, "knowledge_base_id": item.knowledge_base_id, "model_id": item.model_id}
@@ -462,7 +469,14 @@ def conversation_session(db: Session, conversation_id: str, current: User) -> Ch
 @router.post("/conversations")
 def create_conversation(payload: SessionCreate, request: Request, db: Session = Depends(get_db)):
     current = user(request, db); owned_workspace(db, payload.workspace_id, current)
-    if payload.knowledge_base_id: owned_kb(db, payload.knowledge_base_id, current)
+    if payload.knowledge_base_id:
+        kb = owned_kb(db, payload.knowledge_base_id, current)
+        if kb.workspace_id != payload.workspace_id:
+            raise HTTPException(400, "Knowledge base workspace mismatch")
+    if payload.model_id:
+        model = db.get(ModelProfile, payload.model_id)
+        if not model or model.workspace_id != payload.workspace_id:
+            raise HTTPException(404, "Model not found in this workspace")
     item = ChatSession(
         user_id=current.id,
         workspace_id=payload.workspace_id,
@@ -489,8 +503,34 @@ def list_conversations(request: Request, workspace_id: str, knowledge_base_id: s
 @router.get("/conversations/{conversation_id}")
 def get_conversation(conversation_id: str, request: Request, db: Session = Depends(get_db)):
     item = conversation_session(db, conversation_id, user(request, db))
-    stored_messages = list(db.scalars(select(ChatMessage).where(ChatMessage.session_id == item.id).order_by(ChatMessage.created_at)))
+    stored_messages = list(db.scalars(select(ChatMessage).where(ChatMessage.session_id == item.id).order_by(ChatMessage.sequence.asc().nulls_last(), ChatMessage.created_at, ChatMessage.id)))
     return {"id": item.id, "title": item.title, "mode": item.mode, "legacy_mode": item.mode if item.mode != "conversation" else None, "workspace_id": item.workspace_id, "knowledge_base_id": item.knowledge_base_id, "model_id": item.model_id, "messages": serialize_messages(db, stored_messages, item.mode if item.mode != "conversation" else None)}
+
+
+@router.patch("/conversations/{conversation_id}")
+def rename_conversation(conversation_id: str, payload: ConversationUpdate, request: Request, db: Session = Depends(get_db)):
+    item = conversation_session(db, conversation_id, user(request, db))
+    item.title = payload.title
+    db.commit()
+    return {"id": item.id, "title": item.title}
+
+
+@router.delete("/conversations/{conversation_id}", status_code=204)
+def delete_conversation(conversation_id: str, request: Request, include_saved_memories: bool = False, db: Session = Depends(get_db)):
+    item = conversation_session(db, conversation_id, user(request, db))
+    from app.services.chat_runs import lock_session
+    from app.services.memory import delete_session_memories
+    from app.models.models import ChatRun, SessionSummary
+    lock_session(db, item.id)
+    delete_session_memories(db, item.id, include_saved_memories)
+    db.execute(delete(ChatRun).where(ChatRun.session_id == item.id))
+    db.execute(delete(SessionSummary).where(SessionSummary.session_id == item.id))
+    message_ids = select(ChatMessage.id).where(ChatMessage.session_id == item.id)
+    db.execute(delete(Citation).where(Citation.message_id.in_(message_ids)))
+    db.execute(delete(MessageExecution).where(MessageExecution.message_id.in_(message_ids)))
+    db.execute(delete(ChatMessage).where(ChatMessage.session_id == item.id))
+    db.delete(item)
+    db.commit()
 
 
 @router.get("/{mode}/sessions")
@@ -504,7 +544,7 @@ def list_sessions(mode: str, workspace_id: str, request: Request, db: Session = 
 def get_session(mode: str, session_id: str, request: Request, db: Session = Depends(get_db)):
     current = user(request, db); item = db.get(ChatSession, session_id)
     if not item or item.user_id != current.id or item.mode != mode: raise HTTPException(404, "Session not found")
-    stored_messages = list(db.scalars(select(ChatMessage).where(ChatMessage.session_id == item.id).order_by(ChatMessage.created_at)))
+    stored_messages = list(db.scalars(select(ChatMessage).where(ChatMessage.session_id == item.id).order_by(ChatMessage.sequence.asc().nulls_last(), ChatMessage.created_at, ChatMessage.id)))
     messages = serialize_messages(db, stored_messages, item.mode)
     return {"id": item.id, "title": item.title, "mode": item.mode, "workspace_id": item.workspace_id, "knowledge_base_id": item.knowledge_base_id, "model_id": item.model_id, "messages": messages}
 
@@ -513,7 +553,8 @@ def get_session(mode: str, session_id: str, request: Request, db: Session = Depe
 def cancel_agent(session_id: str, request: Request, db: Session = Depends(get_db)):
     current = user(request, db); item = db.get(ChatSession, session_id)
     if not item or item.user_id != current.id or item.mode != "agent": raise HTTPException(404, "Session not found")
-    request_cancel(session_id)
+    from app.services.chat_runs import cancel
+    cancel(db, session_id)
     return {"session_id": session_id, "status": "cancel_requested"}
 
 
@@ -525,103 +566,160 @@ def sse(events):
 
 
 async def chat_stream(mode: str, session_id: str, payload: MessageRequest, request: Request, db: Session, shared_conversation: bool | None = None):
-    current = user(request, db); session = db.get(ChatSession, session_id)
-    if not session or session.user_id != current.id or (shared_conversation is not True and session.mode not in {mode, "conversation"}): raise HTTPException(404, "Session not found")
-    shared_conversation = session.mode == "conversation" if shared_conversation is None else shared_conversation
-    user_message = ChatMessage(session_id=session.id, role="user", content=payload.content)
-    db.add(user_message); db.flush()
-    if shared_conversation:
-        db.add(MessageExecution(message_id=user_message.id, mode=mode))
-    db.commit()
-    previous = [{"role": item.role, "content": item.content} for item in db.scalars(select(ChatMessage).where(ChatMessage.session_id == session.id).order_by(ChatMessage.created_at).limit(20))]
-    selected = db.get(ModelProfile, session.model_id) if session.model_id else None
-    if selected:
-        provider = ChatProvider(ModelChoice(selected.provider, selected.base_url, decrypt(selected.api_key_encrypted), selected.model_name, selected.supports_tools))
-    else:
-        provider = ChatProvider(ModelChoice("openai", settings.openai_base_url, settings.openai_api_key, settings.openai_model))
-    if mode == "rag":
-        async def events():
-            yield {"type": "retrieval_started", "mode": "rag"}
-            query_plan = plan_query(payload.content)
-            yield {"type": "query_plan", "complexity": query_plan.complexity, "top_k": query_plan.top_k, "requires_research": query_plan.requires_research}
-            hits = await hybrid_search(db, vector_store, session.workspace_id, session.knowledge_base_id, payload.content, query_plan.top_k, query_plan=query_plan) if session.knowledge_base_id else []
-            context = format_retrieval_context(hits)
-            messages = [{"role": "system", "content": "Answer only from the provided evidence. Cite sources as [source:id]."}, {"role": "system", "content": context}] + previous
-            citations = []
-            for index, item in enumerate(hits, start=1):
-                chunk = item["chunk"]
-                document = db.get(Document, chunk.document_id)
-                citations.append({
-                    "citation_index": index,
-                    "rank": item.get("rank", index),
-                    "document_id": chunk.document_id,
-                    "filename": document.filename if document else "Unknown document",
-                    "chunk_id": chunk.id,
-                    "page_number": chunk.page_number,
-                    "char_start": chunk.char_start,
-                    "char_end": chunk.char_end,
-                    "heading_path": chunk.heading_path,
-                    "quoted_text": chunk.content[:500],
-                    "quote_truncated": len(chunk.content) > 500,
-                    "rank": item.get("rank", index),
-                    "rerank_score": item.get("rerank_score"),
-                    "retrieval_degraded": item.get("retrieval_degraded", False),
-                })
-            answer = ""
-            if hits and hits[0].get("retrieval_degraded"):
-                yield {"type": "retrieval_degraded", "message": "Reranking is unavailable; showing fused retrieval candidates."}
-            yield {"type": "retrieval_result", "results": citations, "diagnostics": hits[0].get("retrieval_meta") if hits else {"candidate_count": 0, "final_count": 0, "embedding_used": False, "rerank_used": False}}
-            for citation in citations:
-                yield {"type": "citation", **citation}
-            try:
-                async with asyncio.timeout(60):
-                    async for event in provider.stream(messages):
-                        if event.get("type") == "token": answer += event.get("content", "")
-                        yield event
-            except asyncio.TimeoutError:
-                yield {"type": "error", "code": "model_timeout", "message": "Model response timed out after 60 seconds"}
-            message = ChatMessage(session_id=session.id, role="assistant", content=answer, provider=provider.choice.provider)
-            db.add(message); db.flush()
-            if shared_conversation:
-                db.add(MessageExecution(message_id=message.id, mode=mode))
-            for citation in citations:
-                db.add(Citation(
-                    message_id=message.id,
-                    citation_index=citation["citation_index"],
-                    retrieval_rank=citation["rank"],
-                    document_id=citation["document_id"],
-                    chunk_id=citation["chunk_id"],
-                    page_number=citation["page_number"],
-                    char_start=citation["char_start"],
-                    char_end=citation["char_end"],
-                    quoted_text=citation["quoted_text"],
-                ))
+    from app.services import chat_runs as runs
+    from app.services.context import ContextManager, ContextOverflow
+    from app.services.memory import create as save_memory, explicit_content, serialize as serialize_memory
+    from app.services.agent import built_in_schemas
+    current = user(request, db)
+    session = db.get(ChatSession, session_id)
+    if not session or session.user_id != current.id or (shared_conversation is not True and session.mode not in {mode, "conversation"}):
+        raise HTTPException(404, "Session not found")
+    owned_workspace(db, session.workspace_id, current)
+    if session.knowledge_base_id:
+        kb = owned_kb(db, session.knowledge_base_id, current)
+        if kb.workspace_id != session.workspace_id:
+            raise HTTPException(400, "Knowledge base workspace mismatch")
+    model_id = payload.model_id or session.model_id
+    selected = db.get(ModelProfile, model_id) if model_id else None
+    if model_id and (not selected or selected.workspace_id != session.workspace_id):
+        raise HTTPException(404, "Model not found in this workspace")
+    choice = ModelChoice(selected.provider, selected.base_url, decrypt(selected.api_key_encrypted), selected.model_name,
+                         selected.supports_tools, selected.context_window_tokens, selected.max_output_tokens) if selected else ModelChoice(
+        "openai", settings.openai_base_url, settings.openai_api_key, settings.openai_model, True,
+        settings.context_window_tokens, settings.max_output_tokens)
+    provider = ChatProvider(choice)
+    run, replay = runs.start(db, session, payload, mode)
+    if replay:
+        async def replay_events():
+            answer = db.get(ChatMessage, run.assistant_message_id)
+            yield {"type": "run_started", "run_id": run.id, "replayed": True}
+            if answer:
+                for citation in serialize_messages(db, [answer])[0]["citations"]:
+                    yield {"type": "citation", **citation}
+                yield {"type": "message_complete" if mode == "rag" else "agent_complete", "content": answer.content,
+                       "message_id": answer.id, "run_id": run.id, "replayed": True}
+        return replay_events()
+    remembered = None
+    try:
+        body = explicit_content(payload.content)
+        if body:
+            preference = any(word in body for word in ("偏好", "回答", "称呼", "叫我"))
+            item = save_memory(db, current.id, session.workspace_id, body, "preference" if preference else "fact",
+                               kb_id=None if preference else session.knowledge_base_id,
+                               source_id=run.user_message_id, source_type="explicit", active=True)
             db.commit()
-            yield {"type": "message_complete", "content": answer}
-        return events()
-    async def events():
-        yield {"type": "retrieval_started", "mode": "agent"}
+            remembered = serialize_memory(db, item)
+        remote_tools, remote_servers = [], {}
+        if mode == "agent":
+            for server in db.scalars(select(McpServer).where(McpServer.workspace_id == session.workspace_id, McpServer.enabled, McpServer.status == "connected")):
+                for tool in db.scalars(select(McpTool).where(McpTool.server_id == server.id, McpTool.enabled)):
+                    base = model_tool_name(server.name, tool.tool_name)
+                    name, suffix = base, 2
+                    while name in remote_servers:
+                        name = f"{base[:88]}_{suffix}"
+                        suffix += 1
+                    remote_tools.append({"type": "function", "function": {"name": name, "description": tool.description or tool.tool_name, "parameters": tool.input_schema or {"type": "object"}}})
+                    remote_servers[name] = (server, tool.tool_name, tool)
         query_plan = plan_query(payload.content)
+        hits = await hybrid_search(db, vector_store, session.workspace_id, session.knowledge_base_id, payload.content, query_plan.top_k, query_plan=query_plan) if session.knowledge_base_id else []
+        all_tools = built_in_schemas() + remote_tools if mode == "agent" and getattr(provider.choice, "supports_tools", True) else None
+        manager = ContextManager(db, session, provider.choice)
+        messages, hits, stats = await manager.build(payload.content, mode, hits, all_tools)
+        run.context_stats = stats
+        db.commit()
+    except Exception as exc:
+        runs.fail(db, run.id, str(exc))
+        if isinstance(exc, ContextOverflow):
+            raise HTTPException(422, str(exc)) from exc
+        raise
+
+    async def generate():
+        yield {"type": "run_started", "run_id": run.id, "client_request_id": run.client_request_id}
+        if remembered:
+            yield {"type": "memory_saved", "memory": remembered}
+        yield {"type": "context_ready", "run_id": run.id, **stats}
+        for reason in stats["degraded"]:
+            yield {"type": "context_degraded", "reason": reason}
+        yield {"type": "retrieval_started", "mode": mode}
         yield {"type": "query_plan", "complexity": query_plan.complexity, "top_k": query_plan.top_k, "requires_research": query_plan.requires_research}
-        initial_hits = await hybrid_search(db, vector_store, session.workspace_id, session.knowledge_base_id, payload.content, query_plan.top_k, query_plan=query_plan) if session.knowledge_base_id else []
-        initial_context = format_retrieval_context(initial_hits)
-        messages = [{"role": "system", "content": "You are a careful ReAct knowledge assistant. Answer from the supplied evidence and cite [source:id]. Never reveal hidden chain of thought."}, {"role": "system", "content": initial_context or "No indexed evidence was found; say so clearly."}] + previous
-        remote_tools: list[dict] = []
-        remote_servers: dict[str, tuple] = {}
-        for server in db.scalars(select(McpServer).where(McpServer.workspace_id == session.workspace_id, McpServer.enabled, McpServer.status == "connected")):
-            for tool in db.scalars(select(McpTool).where(McpTool.server_id == server.id, McpTool.enabled)):
-                name = model_tool_name(server.name, tool.tool_name)
-                base_name = name
-                suffix = 2
-                while name in remote_servers:
-                    name = f"{base_name[:88]}_{suffix}"
-                    suffix += 1
-                remote_tools.append({"type": "function", "function": {"name": name, "description": tool.description or tool.tool_name, "parameters": tool.input_schema or {"type": "object"}}})
-                remote_servers[name] = (server, tool.tool_name, tool)
-        if initial_hits and initial_hits[0].get("retrieval_degraded"):
+        if hits and hits[0].get("retrieval_degraded"):
             yield {"type": "retrieval_degraded", "message": "Reranking is unavailable; showing fused retrieval candidates."}
-        async for event in agent_events(db, vector_store, provider, messages, session.workspace_id, session.knowledge_base_id, remote_tools, remote_servers, session.id, initial_hits, mode if shared_conversation else None): yield event
-    return events()
+        if mode == "agent":
+            async for event in agent_events(db, vector_store, provider, messages, session.workspace_id, session.knowledge_base_id,
+                                            remote_tools, remote_servers, session.id, hits, mode, run.id):
+                yield event
+            return
+        citations = []
+        for index, item in enumerate(hits, 1):
+            chunk = item["chunk"]
+            document = db.get(Document, chunk.document_id)
+            citations.append({"citation_index": index, "rank": item.get("rank", index),
+                "document_id": chunk.document_id, "filename": document.filename if document else "Unknown document",
+                "chunk_id": chunk.id, "page_number": chunk.page_number, "char_start": chunk.char_start,
+                "char_end": chunk.char_end, "heading_path": chunk.heading_path, "quoted_text": chunk.content[:500],
+                "quote_truncated": len(chunk.content) > 500, "rerank_score": item.get("rerank_score"),
+                "retrieval_degraded": item.get("retrieval_degraded", False)})
+        yield {"type": "retrieval_result", "results": citations, "diagnostics": hits[0].get("retrieval_meta", {}) if hits else {"candidate_count": 0, "final_count": 0}}
+        for citation in citations:
+            yield {"type": "citation", **citation}
+        answer = ""
+        async with asyncio.timeout(60):
+            async for event in provider.stream(messages):
+                if event.get("type") == "token":
+                    answer += event.get("content", "")
+                    yield event
+        stored = [{**c, "retrieval_rank": c["rank"]} for c in citations]
+        message_id = runs.finish(db, run.id, answer, provider.choice.provider, stored)
+        yield {"type": "message_complete", "content": answer, "message_id": message_id, "run_id": run.id}
+
+    async def managed():
+        iterator = generate().__aiter__()
+        task = None
+        completed = False
+        last_check = 0.0
+        try:
+            while True:
+                if time.monotonic() - last_check >= 1:
+                    if not runs.alive(db, run.id):
+                        runs.fail(db, run.id, "cancelled_or_expired", "cancelled")
+                        yield {"type": "error", "code": "cancelled", "message": "请求已取消或租约已失效", "run_id": run.id}
+                        return
+                    last_check = time.monotonic()
+                if task is None:
+                    task = asyncio.create_task(anext(iterator))
+                done, _ = await asyncio.wait({task}, timeout=1)
+                if not done:
+                    continue
+                try:
+                    event = task.result()
+                except StopAsyncIteration:
+                    break
+                task = None
+                if event.get("type") in {"error", "agent_error"}:
+                    runs.fail(db, run.id, event.get("message", "run_failed"),
+                              "cancelled" if event.get("code") == "cancelled" else "failed")
+                    yield event
+                    return
+                completed = event.get("type") in {"message_complete", "agent_complete"}
+                yield event
+                if completed:
+                    return
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            runs.fail(db, run.id, str(exc))
+            yield {"type": "error", "code": "run_failed", "message": str(exc)[:500], "run_id": run.id}
+        finally:
+            if task:
+                task.cancel()
+                try:
+                    await task
+                except (asyncio.CancelledError, StopAsyncIteration):
+                    pass
+            await iterator.aclose()
+            if not completed:
+                runs.fail(db, run.id, "stream_closed", "cancelled")
+    return managed()
 
 
 @router.post("/rag/sessions/{session_id}/messages")
@@ -643,75 +741,110 @@ async def conversation_message(conversation_id: str, payload: ConversationMessag
 @router.post("/conversations/{conversation_id}/cancel", status_code=202)
 def cancel_conversation(conversation_id: str, request: Request, db: Session = Depends(get_db)):
     conversation_session(db, conversation_id, user(request, db))
-    request_cancel(conversation_id)
+    from app.services.chat_runs import cancel
+    cancel(db, conversation_id)
     return {"conversation_id": conversation_id, "status": "cancel_requested"}
+
+
+@router.get("/conversations/{conversation_id}/context")
+def conversation_context(conversation_id: str, request: Request, db: Session = Depends(get_db)):
+    from app.models.models import ChatRun
+    from app.services.memory import serialize
+    conversation_session(db, conversation_id, user(request, db))
+    run = db.scalar(select(ChatRun).where(ChatRun.session_id == conversation_id).order_by(ChatRun.created_at.desc(), ChatRun.id.desc()))
+    stats = dict(run.context_stats or {}) if run else {}
+    ids = stats.get("memory_ids", [])
+    stats["memories"] = [serialize(db, m) for m in db.scalars(select(Memory).where(Memory.id.in_(ids)))]
+    return {"run_id": run.id if run else None, "status": run.status if run else None, **stats}
 
 
 @router.get("/workspaces/{workspace_id}/memories")
 def memories(workspace_id: str, request: Request, db: Session = Depends(get_db)):
-    owned_workspace(db, workspace_id, user(request, db))
-    return [{"id": item.id, "type": item.type, "content": item.content, "status": item.status.value, "confidence": item.confidence} for item in db.scalars(select(Memory).where(Memory.workspace_id == workspace_id).order_by(Memory.created_at.desc()))]
+    from app.services.memory import serialize
+    current = user(request, db)
+    owned_workspace(db, workspace_id, current)
+    return [serialize(db, m) for m in db.scalars(select(Memory).where(Memory.workspace_id == workspace_id, Memory.user_id == current.id).order_by(Memory.created_at.desc()))]
 
 
 @router.post("/workspaces/{workspace_id}/memories")
 def create_memory(workspace_id: str, payload: MemoryCreate, request: Request, db: Session = Depends(get_db)):
-    current = user(request, db); owned_workspace(db, workspace_id, current)
-    item = Memory(user_id=current.id, workspace_id=workspace_id, type=payload.type, content=payload.content, status=MemoryStatus.active)
-    db.add(item); db.commit(); db.refresh(item)
-    return {"id": item.id, "type": item.type, "content": item.content, "status": item.status.value}
+    from app.services.memory import create, serialize
+    current = user(request, db)
+    owned_workspace(db, workspace_id, current)
+    if payload.workspace_id != workspace_id:
+        raise HTTPException(400, "Workspace mismatch")
+    item = create(db, current.id, workspace_id, payload.content, payload.type, payload.knowledge_base_id,
+                  payload.source_message_id, "manual", True, payload.expires_at, payload.replaces_id)
+    db.commit()
+    return serialize(db, item)
+
+
+def owned_memory(db, memory_id, current):
+    item = db.get(Memory, memory_id)
+    if not item or item.user_id != current.id:
+        raise HTTPException(404, "Memory not found")
+    owned_workspace(db, item.workspace_id, current)
+    return item
 
 
 @router.patch("/memories/{memory_id}")
 def update_memory(memory_id: str, payload: MemoryUpdate, request: Request, db: Session = Depends(get_db)):
-    item = db.get(Memory, memory_id); current = user(request, db)
-    if not item or item.user_id != current.id: raise HTTPException(404, "Memory not found")
-    for key, value in payload.model_dump(exclude_unset=True).items(): setattr(item, key, value)
-    db.commit(); db.refresh(item)
-    return {"id": item.id, "type": item.type, "content": item.content, "status": item.status.value}
+    from app.services.memory import edit, serialize
+    item = owned_memory(db, memory_id, user(request, db))
+    changes = payload.model_dump(exclude_unset=True, exclude={"version"})
+    item = edit(db, item, changes, payload.version)
+    db.commit()
+    return serialize(db, item)
 
 
 @router.post("/memories/{memory_id}/confirm")
-def confirm_memory(memory_id: str, request: Request, db: Session = Depends(get_db)):
-    item = db.get(Memory, memory_id); current = user(request, db)
-    if not item or item.user_id != current.id: raise HTTPException(404, "Memory not found")
-    item.status = MemoryStatus.active; db.commit(); return {"id": item.id, "status": item.status.value}
+def confirm_memory(memory_id: str, request: Request, payload: MemoryDecision | None = None, db: Session = Depends(get_db)):
+    from app.services.memory import edit, serialize
+    item = owned_memory(db, memory_id, user(request, db))
+    item = edit(db, item, {}, payload.version if payload else None, "confirm")
+    db.commit()
+    return serialize(db, item)
 
 
 @router.post("/memories/{memory_id}/reject")
-def reject_memory(memory_id: str, request: Request, db: Session = Depends(get_db)):
-    item = db.get(Memory, memory_id); current = user(request, db)
-    if not item or item.user_id != current.id: raise HTTPException(404, "Memory not found")
-    item.status = MemoryStatus.rejected; db.commit(); return {"id": item.id, "status": item.status.value}
+def reject_memory(memory_id: str, request: Request, payload: MemoryDecision | None = None, db: Session = Depends(get_db)):
+    from app.services.memory import edit, serialize
+    item = owned_memory(db, memory_id, user(request, db))
+    item = edit(db, item, {}, payload.version if payload else None, "reject")
+    db.commit()
+    return serialize(db, item)
 
 
 @router.delete("/workspaces/{workspace_id}/memories", status_code=204)
 def clear_memories(workspace_id: str, request: Request, db: Session = Depends(get_db)):
-    from sqlalchemy import delete
-    current = user(request, db); owned_workspace(db, workspace_id, current)
-    db.execute(delete(Memory).where(Memory.workspace_id == workspace_id)); db.commit()
+    from app.services.memory import clear
+    current = user(request, db)
+    owned_workspace(db, workspace_id, current)
+    clear(db, current.id, workspace_id)
+    db.commit()
 
 
 @router.delete("/memories/{memory_id}", status_code=204)
 def delete_memory(memory_id: str, request: Request, db: Session = Depends(get_db)):
-    item = db.get(Memory, memory_id); current = user(request, db)
-    if not item or item.user_id != current.id: raise HTTPException(404, "Memory not found")
-    db.delete(item); db.commit()
+    from app.services.memory import remove
+    remove(db, owned_memory(db, memory_id, user(request, db)))
+    db.commit()
 
 
 @router.get("/workspaces/{workspace_id}/models")
 def models(workspace_id: str, request: Request, db: Session = Depends(get_db)):
     owned_workspace(db, workspace_id, user(request, db))
-    return [{"id": item.id, "provider": item.provider, "model_name": item.model_name, "is_default_rag": item.is_default_rag, "is_default_agent": item.is_default_agent} for item in db.scalars(select(ModelProfile).where(ModelProfile.workspace_id == workspace_id))]
+    return [{"id": item.id, "provider": item.provider, "model_name": item.model_name, "is_default_rag": item.is_default_rag, "is_default_agent": item.is_default_agent, "context_window_tokens": item.context_window_tokens, "max_output_tokens": item.max_output_tokens} for item in db.scalars(select(ModelProfile).where(ModelProfile.workspace_id == workspace_id))]
 
 
 @router.post("/workspaces/{workspace_id}/models")
 def create_model(workspace_id: str, payload: ModelProfileCreate, request: Request, db: Session = Depends(get_db)):
     owned_workspace(db, workspace_id, user(request, db))
-    item = ModelProfile(workspace_id=workspace_id, provider=payload.provider, base_url=payload.base_url, model_name=payload.model_name, api_key_encrypted=encrypt(payload.api_key), supports_tools=payload.supports_tools, supports_reasoning=payload.supports_reasoning, is_default_rag=payload.is_default_rag, is_default_agent=payload.is_default_agent)
+    item = ModelProfile(workspace_id=workspace_id, provider=payload.provider, base_url=payload.base_url, model_name=payload.model_name, api_key_encrypted=encrypt(payload.api_key), supports_tools=payload.supports_tools, context_window_tokens=payload.context_window_tokens, max_output_tokens=payload.max_output_tokens, supports_reasoning=payload.supports_reasoning, is_default_rag=payload.is_default_rag, is_default_agent=payload.is_default_agent)
     if payload.is_default_rag: db.query(ModelProfile).filter(ModelProfile.workspace_id == workspace_id).update({"is_default_rag": False})
     if payload.is_default_agent: db.query(ModelProfile).filter(ModelProfile.workspace_id == workspace_id).update({"is_default_agent": False})
     db.add(item); db.commit(); db.refresh(item)
-    return {"id": item.id, "provider": item.provider, "model_name": item.model_name, "is_default_rag": item.is_default_rag, "is_default_agent": item.is_default_agent}
+    return {"id": item.id, "provider": item.provider, "model_name": item.model_name, "is_default_rag": item.is_default_rag, "is_default_agent": item.is_default_agent, "context_window_tokens": item.context_window_tokens, "max_output_tokens": item.max_output_tokens}
 
 
 @router.post("/models/{model_id}/test")

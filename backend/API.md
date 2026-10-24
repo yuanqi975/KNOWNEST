@@ -1,4 +1,4 @@
-# WeKnora Python API
+# KNOWNEST Python API
 
 本文档对应 `backend/app` 当前实现，所有路径默认带前缀 `/api/v1`。除健康检查外均需要：
 
@@ -22,7 +22,7 @@ Content-Type: application/json
 无需认证。返回：
 
 ```json
-{"status":"ok","service":"weknora-python"}
+{"status":"ok","service":"knownest-python"}
 ```
 
 ### `GET /ready`
@@ -401,6 +401,14 @@ Content-Type: application/pdf
 
 ## 8. 会话和 RAG/Agent
 
+### `PATCH /conversations/{conversation_id}`
+
+将当前用户的对话重命名，兼容连续会话和历史 RAG、Agent 会话。请求 `{"title":"项目研究记录"}`；名称会去除首尾空白，长度为 1～255 个字符。返回 `{"id":"conversation-id","title":"项目研究记录"}`。
+
+### `DELETE /conversations/{conversation_id}`
+
+删除当前用户的对话及关联消息、引用和回答模式记录，返回 `204`。知识库文档保持不变。对话不存在或属于其他用户时返回 `404`。
+
 ### `POST /chat/{mode}/sessions`
 
 `mode` 为 `rag` 或 `agent`。请求：
@@ -493,6 +501,9 @@ RAG 只执行检索和模型生成，不调用 Agent 工具或 MCP。
 ```
 
 ## 9. 长期记忆
+
+记忆现已参与回答上下文，支持知识库范围、来源、过期时间、版本校验和冲突替代。
+消息幂等、上下文调试接口、新 SSE 事件及后台任务部署详见 [上下文与长期记忆](../docs/CONTEXT_MEMORY.md)。
 
 ### `GET /workspaces/{workspace_id}/memories`
 
@@ -685,7 +696,7 @@ HTTP 目标默认拒绝 localhost、内网、回环和链路本地地址；stdio
 ## 12. 状态、模型和向量约定
 
 - PostgreSQL 保存用户、Workspace、知识库、文件夹、文档、Chunk、会话、引用、记忆和配置。
-- Milvus Collection 默认名为 `weknora_vectors`，向量维度固定为 4096。
+- Milvus Collection 默认名为 `knownest_vectors`，向量维度固定为 4096。
 - Embedding 默认通过 SiliconFlow OpenAI-compatible API 调用 `Qwen/Qwen3-VL-Embedding-8B`。
 - `OPENAI_*` 和 `DEEPSEEK_*` 环境变量提供默认模型；Workspace 模型配置可以覆盖默认值。
 - 文档索引任务状态：`pending`、`processing`、`parsed`、`embedding`、`indexed`、`failed`、`deleting`、`deleted`。

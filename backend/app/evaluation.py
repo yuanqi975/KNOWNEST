@@ -1,4 +1,4 @@
-"""Dataset validation and deterministic metrics for the local WeKnora eval set."""
+"""Dataset validation and deterministic metrics for the local KNOWNEST eval set."""
 
 from __future__ import annotations
 

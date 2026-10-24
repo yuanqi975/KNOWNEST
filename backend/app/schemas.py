@@ -1,7 +1,7 @@
-from typing import Any, Literal
-from typing import Literal
+from typing import Annotated, Any, Literal
+from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 from app.services.parser import ChunkingConfig
 
 
@@ -59,9 +59,14 @@ class SessionCreate(BaseModel):
     model_id: str | None = None
 
 
+class ConversationUpdate(BaseModel):
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
+
+
 class MessageRequest(BaseModel):
     content: str = Field(min_length=1, max_length=20000)
     model_id: str | None = None
+    client_request_id: str | None = Field(default=None, min_length=1, max_length=100)
 
 
 class ConversationMessageRequest(MessageRequest):
@@ -77,11 +82,22 @@ class MemoryCreate(BaseModel):
     workspace_id: str
     type: Literal["profile", "preference", "fact", "task", "interest"]
     content: str = Field(min_length=1, max_length=2000)
+    knowledge_base_id: str | None = None
+    source_message_id: str | None = None
+    expires_at: datetime | None = None
+    replaces_id: str | None = None
 
 
 class MemoryUpdate(BaseModel):
     content: str | None = Field(default=None, min_length=1, max_length=2000)
-    type: str | None = None
+    type: Literal["profile", "preference", "fact", "task", "interest"] | None = None
+    version: int | None = Field(default=None, ge=1)
+    knowledge_base_id: str | None = None
+    expires_at: datetime | None = None
+
+
+class MemoryDecision(BaseModel):
+    version: int | None = Field(default=None, ge=1)
 
 
 class ModelProfileCreate(BaseModel):
@@ -91,9 +107,17 @@ class ModelProfileCreate(BaseModel):
     model_name: str
     api_key: str | None = None
     supports_tools: bool = True
+    context_window_tokens: int = Field(default=32768, ge=8192, le=2000000)
+    max_output_tokens: int = Field(default=4096, ge=256, le=32768)
     supports_reasoning: bool = False
     is_default_rag: bool = False
     is_default_agent: bool = False
+
+    @model_validator(mode="after")
+    def validate_context_budget(self):
+        if self.max_output_tokens + max(1024, self.context_window_tokens // 8) >= self.context_window_tokens:
+            raise ValueError("Output limit must leave space for model input and safety margin")
+        return self
 
 
 class McpServerCreate(BaseModel):

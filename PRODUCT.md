@@ -12,7 +12,7 @@ Enterprise knowledge workers who need to find, understand, and use information h
 
 ## Product Purpose
 
-WeKnora Runtime is a web knowledge application for asking questions of a selected knowledge base. It supports direct retrieval-assisted answers and an agentic research mode, with source citations and evidence traces available for review.
+KNOWNEST is a web knowledge application for asking questions of a selected knowledge base. It supports direct retrieval-assisted answers and an agentic research mode, with source citations and evidence traces available for review.
 
 ## Positioning
 

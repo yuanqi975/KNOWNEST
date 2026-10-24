@@ -32,7 +32,7 @@ for ($attempt = 0; $attempt -lt 30; $attempt++) {
     try {
         $taskHealth = Invoke-RestMethod 'http://127.0.0.1:8000/api/v1/health' -TimeoutSec 2
         $taskFront = Invoke-WebRequest 'http://127.0.0.1:5173/runtime' -UseBasicParsing -TimeoutSec 2
-        if ($taskHealth.service -eq 'weknora-python' -and $taskFront.StatusCode -eq 200) { $taskReady = $true; break }
+        if ($taskHealth.service -eq 'knownest-python' -and $taskFront.StatusCode -eq 200) { $taskReady = $true; break }
     } catch { }
     Start-Sleep -Seconds 1
 }

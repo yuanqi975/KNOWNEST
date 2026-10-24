@@ -1,5 +1,7 @@
 import os
-os.environ["DATABASE_URL"] = "sqlite:///./test-weknora.db"
+import bcrypt
+import pytest
+os.environ["DATABASE_URL"] = "sqlite:///./test-knownest.db"
 
 from app.services.agent import safe_calculate
 from app.services.auth import hash_password, verify_password
@@ -47,3 +49,20 @@ def test_password_hash_supports_multibyte_passwords():
     hashed = hash_password(password)
     assert verify_password(password, hashed)
     assert not verify_password(password + "!", hashed)
+
+
+@pytest.mark.parametrize("prefix", ["knownest-sha256$", "weknora-sha256$"])
+def test_password_hash_remains_compatible_after_rebranding(prefix):
+    password = "existing-account-password"
+    current = hash_password(password)
+    assert current.startswith("knownest-sha256$")
+    stored = prefix + current.split("$", 1)[1]
+    assert verify_password(password, stored)
+    assert not verify_password("wrong-password", stored)
+
+
+def test_legacy_bcrypt_password_still_works():
+    password = "existing-bcrypt-password"
+    stored = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("ascii")
+    assert verify_password(password, stored)
+    assert not verify_password("wrong-password", stored)

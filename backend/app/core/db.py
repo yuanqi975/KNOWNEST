@@ -22,9 +22,14 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-def create_tables() -> None:
+def create_tables(bind=None) -> None:
     from app.models import models  # noqa: F401
-    Base.metadata.create_all(bind=engine)
+    target = bind or engine
+    # Only Alembic creates the context/memory subsystem. Legacy compatibility
+    # remains here for installations predating versioned migrations.
+    new_tables = {"chat_runs", "session_summaries", "memory_namespaces", "memory_sources",
+                  "memory_embeddings", "memory_events", "background_jobs"}
+    Base.metadata.create_all(bind=target, tables=[t for t in Base.metadata.sorted_tables if t.name not in new_tables])
     # The project currently uses create_all rather than Alembic migrations in
     # local deployments. Add the chunking columns for databases created by an
     # earlier version without touching existing data.
@@ -59,8 +64,9 @@ def create_tables() -> None:
             "stale": "BOOLEAN DEFAULT FALSE",
         },
     }
-    inspector = inspect(engine)
-    with engine.begin() as connection:
+    inspector = inspect(target)
+    from contextlib import nullcontext
+    with (target.begin() if bind is None else nullcontext(target)) as connection:
         for table, columns in additions.items():
             existing = {column["name"] for column in inspector.get_columns(table)}
             for name, definition in columns.items():

@@ -1,5 +1,13 @@
 # Third-party notices and corresponding source
 
+KNOWNEST retains the original Tencent copyright and MIT permission notice in
+`LICENSE`. The notices and license texts below are retained as historical
+attribution from the source distribution. References to Go, desktop packages,
+AnyDoc and their packaging scripts describe that distribution; those components
+and scripts are not part of the current Python/Vue runtime. Current runtime
+dependencies are declared in `backend/requirements.txt` and
+`frontend/package-lock.json` and remain subject to their respective licenses.
+
 This file supplements the third-party notices in `LICENSE`. The MIT license
 for WeKnora's own code does not replace the licenses of third-party components.
 Keep this file, `LICENSE`, and the `licenses/` directory with redistributed

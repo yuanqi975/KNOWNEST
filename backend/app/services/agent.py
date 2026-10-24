@@ -153,6 +153,7 @@ async def agent_events(
     session_id: str | None = None,
     initial_hits: list[dict[str, Any]] | None = None,
     message_mode: str | None = None,
+    run_id: str | None = None,
 ) -> AsyncIterator[dict[str, Any]]:
     """Run a bounded ReAct tool loop and emit only observable actions/results.
 
@@ -214,6 +215,13 @@ async def agent_events(
                 cited_chunk_ids.add(source["chunk_id"])
                 yield {"type": "citation", **citation, "step": 0}
         for step in range(1, MAX_AGENT_STEPS + 1):
+            if run_id:
+                from app.services.chat_runs import alive
+                if not alive(db, run_id):
+                    yield {"type": "agent_error", "code": "cancelled", "message": "Agent run cancelled"}
+                    return
+            from app.services.context import fit_agent_messages
+            working = fit_agent_messages(working, tools, provider.choice)
             remaining = deadline - asyncio.get_running_loop().time()
             if remaining <= 0:
                 yield {"type": "agent_error", "code": "timeout", "message": f"Agent run timed out after {AGENT_RUN_TIMEOUT_SECONDS} seconds", "steps": step - 1}
@@ -242,7 +250,11 @@ async def agent_events(
 
             last_answer = answer or last_answer
             if not calls:
-                if session_id:
+                message_id = None
+                if run_id:
+                    from app.services.chat_runs import finish
+                    message_id = finish(db, run_id, answer, provider.choice.provider, collected_citations)
+                elif session_id:
                     message = ChatMessage(session_id=session_id, role="assistant", content=answer, provider=provider.choice.provider)
                     db.add(message)
                     db.flush()
@@ -252,7 +264,7 @@ async def agent_events(
                         if citation.get("document_id") and citation.get("chunk_id"):
                             db.add(Citation(message_id=message.id, **citation))
                     db.commit()
-                yield {"type": "agent_complete", "content": answer, "steps": step}
+                yield {"type": "agent_complete", "content": answer, "steps": step, "message_id": message_id, "run_id": run_id}
                 return
 
             working.append({"role": "assistant", "content": answer or None, "tool_calls": calls})
@@ -262,6 +274,7 @@ async def agent_events(
                     yield {"type": "agent_error", "code": "cancelled", "message": "Agent run cancelled", "steps": step}
                     return
                 call_id = call.get("id") or f"step-{step}-call-{call_index}"
+                call["id"] = call_id
                 function = call.get("function") or {}
                 name = function.get("name") or "unknown"
                 try:
@@ -274,6 +287,9 @@ async def agent_events(
                     yield {"type": "tool_call_start", "name": name, "arguments": args, "step": step}
                 else:
                     yield {"type": "tool_call_start", "name": name, "arguments": args, "step": step}
+                    if run_id and not alive(db, run_id):
+                        yield {"type": "agent_error", "code": "cancelled", "message": "Agent run cancelled"}
+                        return
                     if call_index >= MAX_TOOL_CALLS_PER_STEP:
                         result = {"error": f"At most {MAX_TOOL_CALLS_PER_STEP} tool calls may run in one step"}
                     else:
@@ -302,6 +318,11 @@ async def agent_events(
                             db.commit()
 
                 content = _tool_result_content(result)
+                if run_id:
+                    from app.models.models import ChatRun
+                    run = db.get(ChatRun, run_id)
+                    run.tool_results = (run.tool_results or []) + [{"call_id": call_id, "name": name, "arguments": args, "result": result}]
+                    db.commit()
                 yield {"type": "tool_call_result", "name": name, "result": result, "step": step}
                 if name == "search_knowledge_base":
                     results = result.get("results", []) if isinstance(result, dict) else []
@@ -343,7 +364,11 @@ async def agent_events(
         final = "Agent reached the maximum number of reasoning steps."
         if last_answer:
             final = f"{last_answer}\n\n{final}"
-        if session_id:
+        message_id = None
+        if run_id:
+            from app.services.chat_runs import finish
+            message_id = finish(db, run_id, final, provider.choice.provider, collected_citations)
+        elif session_id:
             message = ChatMessage(session_id=session_id, role="assistant", content=final, provider=provider.choice.provider)
             db.add(message)
             db.flush()
@@ -353,7 +378,8 @@ async def agent_events(
                 if citation.get("document_id") and citation.get("chunk_id"):
                     db.add(Citation(message_id=message.id, **citation))
             db.commit()
-        yield {"type": "agent_complete", "content": final, "steps": MAX_AGENT_STEPS, "step_limit_reached": True}
+        yield {"type": "agent_complete", "content": final, "steps": MAX_AGENT_STEPS, "step_limit_reached": True, "message_id": message_id, "run_id": run_id}
     except Exception as exc:
-        db.rollback()
+        if db is not None:
+            db.rollback()
         yield {"type": "agent_error", "message": str(exc)[:1000]}

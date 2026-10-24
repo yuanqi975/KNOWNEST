@@ -1,1 +1,1 @@
-"""Focused Python runtime for WeKnora."""
+"""Focused Python runtime for KNOWNEST."""
